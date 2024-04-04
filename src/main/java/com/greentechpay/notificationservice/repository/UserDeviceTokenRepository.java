@@ -9,4 +9,6 @@ public interface UserDeviceTokenRepository extends JpaRepository<UserDeviceToken
     String getDeviceTokenByUserId(String userId);
 
     UserDeviceToken getUserDeviceTokenByUserId(String userId);
+
+    boolean existsByUserId(String userId);
 }
