@@ -23,27 +23,20 @@ public class FirebaseMessagingService {
                 .setBody(paymentNotificationMessageEvent.getBody())
                 .setImage(paymentNotificationMessageEvent.getImage())
                 .build();
-        System.out.println(paymentNotificationMessageEvent.getUserId());
-        System.out.println(paymentNotificationMessageEvent.getTitle());
-        System.out.println(paymentNotificationMessageEvent.getBody());
-        System.out.println(paymentNotificationMessageEvent.getToUser());
-        if (tokenService.getUserDeviceTokenByUserId(paymentNotificationMessageEvent.getUserId()).isActive()) {
-            Message message = Message.builder()
-                    .setToken(tokenService.getDeviceTokenByUserId(paymentNotificationMessageEvent.getUserId()))
-                    .setNotification(notification)
-                    .putAllData(paymentNotificationMessageEvent.getData())
-                    .build();
-            notificationService.create(paymentNotificationMessageEvent);
 
-            try {
-                firebaseMessaging.send(message);
-                return "Success Sending Notification";
-            } catch (FirebaseMessagingException exception) {
-                exception.printStackTrace();
-                return "Error Sending Notification";
-            }
-        } else {
-            return "This token is passive";
+        Message message = Message.builder()
+                .setToken(tokenService.getDeviceTokenByUserId(paymentNotificationMessageEvent.getUserId()))
+                .setNotification(notification)
+                // .putAllData(paymentNotificationMessageEvent.getData())
+                .build();
+        notificationService.create(paymentNotificationMessageEvent);
+
+        try {
+            firebaseMessaging.send(message);
+            return "Success Sending Notification";
+        } catch (FirebaseMessagingException exception) {
+            exception.printStackTrace();
+            return "Error Sending Notification";
         }
     }
 }

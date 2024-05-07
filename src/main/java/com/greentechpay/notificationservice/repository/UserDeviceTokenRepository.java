@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 public interface UserDeviceTokenRepository extends JpaRepository<UserDeviceToken, Long> {
-    @Query("select token.deviceToken from UserDeviceToken  token where token.user.id=:userId")
+    @Query("select token.deviceToken from UserDeviceToken token where token.userId=:userId")
     String getDeviceTokenByUserId(String userId);
 
     UserDeviceToken getUserDeviceTokenByUserId(String userId);

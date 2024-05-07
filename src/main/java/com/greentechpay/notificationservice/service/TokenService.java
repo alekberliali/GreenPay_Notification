@@ -5,6 +5,7 @@ import com.greentechpay.notificationservice.entity.UserDeviceToken;
 import com.greentechpay.notificationservice.mapper.DeviceTokenMapper;
 import com.greentechpay.notificationservice.repository.UserDeviceTokenRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -15,6 +16,7 @@ public class TokenService {
     private final UserDeviceTokenRepository userDeviceTokenRepository;
     private final DeviceTokenMapper deviceTokenMapper;
 
+    @KafkaListener(topics = "DeviceToken" , groupId = "1")
     public void create(DeviceTokenDto deviceTokenDto) {
         if (!userDeviceTokenRepository.existsByUserId(deviceTokenDto.getUserId())) {
             UserDeviceToken userDeviceToken = deviceTokenMapper.dtoToEntity(deviceTokenDto);
@@ -31,5 +33,4 @@ public class TokenService {
     public String getDeviceTokenByUserId(String userId) {
         return userDeviceTokenRepository.getDeviceTokenByUserId(userId);
     }
-
 }

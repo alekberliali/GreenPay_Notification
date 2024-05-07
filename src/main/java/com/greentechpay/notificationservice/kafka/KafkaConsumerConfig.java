@@ -21,12 +21,11 @@ public class KafkaConsumerConfig {
     @Bean
     public ConsumerFactory<String, PaymentNotificationMessageEvent> consumerFactory() {
         Map<String, Object> props = new HashMap<>();
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "138.68.105.233:9092");
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "164.90.228.210:9092");
         props.put(ConsumerConfig.GROUP_ID_CONFIG, "1");
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, ErrorHandlingDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class.getName());
-        System.out.println(JsonDeserializer.class.getName());
         props.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
         props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, "com.greentechpay.notificationservice.dto.PaymentNotificationMessageEvent");
         return new DefaultKafkaConsumerFactory<>(props);
