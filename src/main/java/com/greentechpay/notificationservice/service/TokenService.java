@@ -30,7 +30,7 @@ public class TokenService {
         }
     }
 
-    public String getDeviceTokenByUserId(String userId) {
+    protected String getDeviceTokenByUserId(String userId) {
         return userDeviceTokenRepository.getDeviceTokenByUserId(userId);
     }
 }

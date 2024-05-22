@@ -42,8 +42,26 @@ public class NotificationService {
                 .build();
     }
 
+    public NotificationDto getById(Long id) {
+        var notification = notificationRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("notification could not find by id: " + id));
+        updateNotificationStatus(notification);
+        return notificationMapper.entityToDto(notification);
+    }
+
+    private void updateNotificationStatus(Notification notification) {
+        notification.setReadStatus(true);
+        notificationRepository.save(notification);
+    }
+
     @Transactional
     public void delete(String userId) {
         notificationRepository.deleteAllByUserId(userId);
+    }
+
+    public void deleteById(Long id) {
+        if (notificationRepository.existsById(id)) {
+            notificationRepository.deleteById(id);
+        } else throw new RuntimeException("notification could not find by id: " + id);
     }
 }

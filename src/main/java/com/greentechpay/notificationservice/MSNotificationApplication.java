@@ -12,7 +12,7 @@ import org.springframework.core.io.ClassPathResource;
 import java.io.IOException;
 
 @SpringBootApplication
-public class NotificationServiceApplication {
+public class MSNotificationApplication {
     @Bean
     FirebaseMessaging firebaseMessaging() throws IOException {
         GoogleCredentials googleCredentials = GoogleCredentials
@@ -24,7 +24,7 @@ public class NotificationServiceApplication {
     }
 
     public static void main(String[] args) {
-        SpringApplication.run(NotificationServiceApplication.class, args);
+        SpringApplication.run(MSNotificationApplication.class, args);
     }
 
 }

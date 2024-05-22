@@ -1,6 +1,5 @@
 package com.greentechpay.notificationservice.kafka;
 
-import com.greentechpay.notificationservice.dto.DeviceTokenDto;
 import com.greentechpay.notificationservice.dto.PaymentNotificationMessageEvent;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
