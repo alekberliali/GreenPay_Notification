@@ -1,6 +1,6 @@
 package com.greentechpay.notificationservice.controller;
 
-import com.greentechpay.notificationservice.dto.DeviceTokenDto;
+import com.greentechpay.notificationservice.dto.LoginDeviceTokenEvent;
 import com.greentechpay.notificationservice.service.TokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,7 +19,7 @@ public class DeviceTokenController {
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.OK)
-    public void create(@RequestBody DeviceTokenDto deviceTokenDto) {
-        tokenService.create(deviceTokenDto);
+    public void create(@RequestBody LoginDeviceTokenEvent loginDeviceTokenEvent) {
+        tokenService.create(loginDeviceTokenEvent);
     }
 }

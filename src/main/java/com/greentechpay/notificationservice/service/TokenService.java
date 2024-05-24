@@ -1,6 +1,6 @@
 package com.greentechpay.notificationservice.service;
 
-import com.greentechpay.notificationservice.dto.DeviceTokenDto;
+import com.greentechpay.notificationservice.dto.LoginDeviceTokenEvent;
 import com.greentechpay.notificationservice.entity.UserDeviceToken;
 import com.greentechpay.notificationservice.mapper.DeviceTokenMapper;
 import com.greentechpay.notificationservice.repository.UserDeviceTokenRepository;
@@ -16,15 +16,17 @@ public class TokenService {
     private final UserDeviceTokenRepository userDeviceTokenRepository;
     private final DeviceTokenMapper deviceTokenMapper;
 
-    @KafkaListener(topics = "DeviceToken" , groupId = "1")
-    public void create(DeviceTokenDto deviceTokenDto) {
-        if (!userDeviceTokenRepository.existsByUserId(deviceTokenDto.getUserId())) {
-            UserDeviceToken userDeviceToken = deviceTokenMapper.dtoToEntity(deviceTokenDto);
+    @KafkaListener(topics = "login-device-token" , groupId = "2",
+            containerFactory = "kafkaListenerContainerFactoryLoginDeviceToken")
+    public void create(LoginDeviceTokenEvent loginDeviceTokenEvent) {
+        System.out.println(loginDeviceTokenEvent.getDeviceToken());
+        if (!userDeviceTokenRepository.existsByUserId(loginDeviceTokenEvent.getUserId())) {
+            UserDeviceToken userDeviceToken = deviceTokenMapper.dtoToEntity(loginDeviceTokenEvent);
             userDeviceToken.setCreatedAt(LocalDateTime.now());
             userDeviceTokenRepository.save(userDeviceToken);
-        } else if (userDeviceTokenRepository.existsByUserId(deviceTokenDto.getUserId())) {
-            UserDeviceToken userDeviceToken = userDeviceTokenRepository.getUserDeviceTokenByUserId(deviceTokenDto.getUserId());
-            userDeviceToken.setDeviceToken(deviceTokenDto.getDeviceToken());
+        } else if (userDeviceTokenRepository.existsByUserId(loginDeviceTokenEvent.getUserId())) {
+            UserDeviceToken userDeviceToken = userDeviceTokenRepository.getUserDeviceTokenByUserId(loginDeviceTokenEvent.getUserId());
+            userDeviceToken.setDeviceToken(loginDeviceTokenEvent.getDeviceToken());
             userDeviceToken.setUpdatedAt(LocalDateTime.now());
             userDeviceTokenRepository.save(userDeviceToken);
         }

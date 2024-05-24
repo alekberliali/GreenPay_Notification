@@ -1,7 +1,6 @@
 package com.greentechpay.notificationservice.controller;
 
 import com.greentechpay.notificationservice.dto.NotificationDto;
-import com.greentechpay.notificationservice.dto.PaymentNotificationMessageEvent;
 import com.greentechpay.notificationservice.dto.PageRequestDto;
 import com.greentechpay.notificationservice.dto.PageResponse;
 import com.greentechpay.notificationservice.service.FirebaseMessagingService;
@@ -24,10 +23,6 @@ public class NotificationController {
         return ResponseEntity.ok(notificationService.getById(id));
     }
 
-    @PostMapping("/send")
-    public String send(@RequestBody PaymentNotificationMessageEvent paymentNotificationMessageEvent) {
-        return firebaseMessagingService.sendNotificationByToken(paymentNotificationMessageEvent);
-    }
 
     @PostMapping("/page/{userId}")
     public ResponseEntity<PageResponse<NotificationDto>>

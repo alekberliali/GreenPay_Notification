@@ -16,8 +16,10 @@ public class FirebaseMessagingService {
     private final TokenService tokenService;
     private final NotificationService notificationService;
 
-    @KafkaListener(topics = "Notification-Message", groupId = "1")
+    @KafkaListener(topics = "Notification-Message", groupId = "1",
+            containerFactory = "kafkaListenerContainerFactoryPaymentNotificationMessage")
     public String sendNotificationByToken(PaymentNotificationMessageEvent paymentNotificationMessageEvent) {
+        System.out.println(paymentNotificationMessageEvent.getBody());
         Notification notification = Notification.builder()
                 .setTitle(paymentNotificationMessageEvent.getTitle())
                 .setBody(paymentNotificationMessageEvent.getBody())

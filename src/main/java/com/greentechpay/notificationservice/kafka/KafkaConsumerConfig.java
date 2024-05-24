@@ -1,5 +1,6 @@
 package com.greentechpay.notificationservice.kafka;
 
+import com.greentechpay.notificationservice.dto.LoginDeviceTokenEvent;
 import com.greentechpay.notificationservice.dto.PaymentNotificationMessageEvent;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -14,14 +15,37 @@ import org.springframework.kafka.support.serializer.JsonDeserializer;
 
 import java.util.HashMap;
 import java.util.Map;
+
 @Configuration
 @EnableKafka
 public class KafkaConsumerConfig {
     @Bean
-    public ConsumerFactory<String, PaymentNotificationMessageEvent> consumerFactory() {
+    public ConsumerFactory<String, LoginDeviceTokenEvent> consumerFactoryLoginDeviceToken() {
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "164.90.228.210:9092");
         props.put(ConsumerConfig.GROUP_ID_CONFIG, "1");
+        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        props.put(ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, ErrorHandlingDeserializer.class);
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class.getName());
+        props.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
+        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, "com.greentechpay.notificationservice.dto.LoginDeviceTokenEvent");
+        return new DefaultKafkaConsumerFactory<>(props);
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, LoginDeviceTokenEvent>
+    kafkaListenerContainerFactoryLoginDeviceToken() {
+        ConcurrentKafkaListenerContainerFactory<String, LoginDeviceTokenEvent> factory =
+                new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(consumerFactoryLoginDeviceToken());
+        return factory;
+    }
+
+   @Bean
+    public ConsumerFactory<String, PaymentNotificationMessageEvent> consumerFactoryPaymentNotificationMessage() {
+        Map<String, Object> props = new HashMap<>();
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "164.90.228.210:9092");
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, "2");
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, ErrorHandlingDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class.getName());
@@ -31,9 +55,11 @@ public class KafkaConsumerConfig {
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, PaymentNotificationMessageEvent> kafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, PaymentNotificationMessageEvent> factory = new ConcurrentKafkaListenerContainerFactory<>();
-        factory.setConsumerFactory(consumerFactory());
+    public ConcurrentKafkaListenerContainerFactory<String, PaymentNotificationMessageEvent>
+    kafkaListenerContainerFactoryPaymentNotificationMessage() {
+        ConcurrentKafkaListenerContainerFactory<String, PaymentNotificationMessageEvent> factory =
+                new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(consumerFactoryPaymentNotificationMessage());
         return factory;
     }
 }

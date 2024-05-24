@@ -26,7 +26,6 @@ public class UserDeviceToken {
     private Long id;
     @Column(name = "device_token")
     private String deviceToken;
-
     @Column(name = "created_at")
     private LocalDateTime createdAt;
     @Column(name = "updated_at")
