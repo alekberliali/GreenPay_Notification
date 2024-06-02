@@ -1,8 +1,6 @@
 package com.greentechpay.notificationservice.controller;
 
-import com.greentechpay.notificationservice.dto.NotificationDto;
-import com.greentechpay.notificationservice.dto.PageRequestDto;
-import com.greentechpay.notificationservice.dto.PageResponse;
+import com.greentechpay.notificationservice.dto.*;
 import com.greentechpay.notificationservice.service.FirebaseMessagingService;
 import com.greentechpay.notificationservice.service.NotificationService;
 import jakarta.validation.Valid;
@@ -18,11 +16,20 @@ public class NotificationController {
     private final FirebaseMessagingService firebaseMessagingService;
     private final NotificationService notificationService;
 
+    @PostMapping("/send-all")
+    public ResponseEntity<String> sendAll(@RequestBody NotificationMessageToAll notificationMessageToAll) {
+       return ResponseEntity.ok(firebaseMessagingService.sendNotificationToManyUser(notificationMessageToAll));
+    }
+
+    @PostMapping("/send")
+    public ResponseEntity<String> send(@RequestBody PaymentNotificationMessageEvent paymentNotificationMessageEvent){
+        return ResponseEntity.ok(firebaseMessagingService.sendNotificationByToken(paymentNotificationMessageEvent));
+    }
+
     @GetMapping("/get/{id}")
     public ResponseEntity<NotificationDto> getById(@PathVariable Long id) {
         return ResponseEntity.ok(notificationService.getById(id));
     }
-
 
     @PostMapping("/page/{userId}")
     public ResponseEntity<PageResponse<NotificationDto>>

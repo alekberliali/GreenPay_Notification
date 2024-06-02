@@ -1,7 +1,7 @@
 package com.greentechpay.notificationservice.service;
 
 import com.greentechpay.notificationservice.dto.NotificationDto;
-import com.greentechpay.notificationservice.dto.PaymentNotificationMessageEvent;
+import com.greentechpay.notificationservice.dto.NotificationType;
 import com.greentechpay.notificationservice.dto.PageRequestDto;
 import com.greentechpay.notificationservice.dto.PageResponse;
 import com.greentechpay.notificationservice.entity.Notification;
@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -20,13 +21,20 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final NotificationMapper notificationMapper;
 
-    public void create(PaymentNotificationMessageEvent paymentNotificationMessageEvent) {
-        Notification notification = new Notification();
-        notification.setTitle(paymentNotificationMessageEvent.getTitle());
-        notification.setBody(paymentNotificationMessageEvent.getBody());
-        notification.setUserId(paymentNotificationMessageEvent.getUserId());
+    public void create(Notification notification) {
         notification.setSendDate(LocalDateTime.now());
+        notification.setReadStatus(false);
+        notification.setNotificationType(NotificationType.NOTIFICATION);
         notificationRepository.save(notification);
+    }
+
+    public void createAll(List<Notification> notificationList) {
+        for (Notification notification : notificationList) {
+            notification.setSendDate(LocalDateTime.now());
+            notification.setReadStatus(false);
+            notification.setNotificationType(NotificationType.CAMPAIGN);
+        }
+        notificationRepository.saveAll(notificationList);
     }
 
     public PageResponse<NotificationDto> getAllByUserId(String userId, PageRequestDto pageRequestDto) {

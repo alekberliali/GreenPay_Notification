@@ -1,5 +1,8 @@
 package com.greentechpay.notificationservice;
 
+import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
+import com.google.api.client.http.HttpRequest;
+import com.google.api.client.http.HttpRequestInitializer;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
@@ -17,8 +20,10 @@ public class MSNotificationApplication {
     FirebaseMessaging firebaseMessaging() throws IOException {
         GoogleCredentials googleCredentials = GoogleCredentials
                 .fromStream(new ClassPathResource("firebase-service-account.json").getInputStream());
+
         FirebaseOptions firebaseOptions = FirebaseOptions.builder()
-                .setCredentials(googleCredentials).build();
+                .setCredentials(googleCredentials)
+                .build();
         FirebaseApp app = FirebaseApp.initializeApp(firebaseOptions, "greentechpay-notification");
         return FirebaseMessaging.getInstance(app);
     }

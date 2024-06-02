@@ -1,5 +1,6 @@
 package com.greentechpay.notificationservice.entity;
 
+import com.greentechpay.notificationservice.dto.NotificationType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -28,6 +29,9 @@ public class Notification {
     private String userId;
     @Column(name = "read_status")
     private Boolean readStatus;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "notification_type")
+    private NotificationType notificationType;
 
     @Override
     public final boolean equals(Object o) {
