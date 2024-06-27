@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.concurrent.ExecutionException;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/notification")
@@ -17,12 +19,12 @@ public class NotificationController {
     private final NotificationService notificationService;
 
     @PostMapping("/send-all")
-    public ResponseEntity<String> sendAll(@RequestBody NotificationMessageToAll notificationMessageToAll) {
-       return ResponseEntity.ok(firebaseMessagingService.sendNotificationToManyUser(notificationMessageToAll));
+    public ResponseEntity<Integer> sendAll(@RequestBody NotificationMessageToAll notificationMessageToAll) throws ExecutionException, InterruptedException {
+        return ResponseEntity.ok(firebaseMessagingService.sendNotificationToManyUser(notificationMessageToAll));
     }
 
     @PostMapping("/send")
-    public ResponseEntity<String> send(@RequestBody PaymentNotificationMessageEvent paymentNotificationMessageEvent){
+    public ResponseEntity<String> send(@RequestBody PaymentNotificationMessageEvent paymentNotificationMessageEvent) {
         return ResponseEntity.ok(firebaseMessagingService.sendNotificationByToken(paymentNotificationMessageEvent));
     }
 

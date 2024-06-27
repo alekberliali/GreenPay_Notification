@@ -9,5 +9,6 @@ public class NotificationMessageToAll {
     private List<String> userIdList;
     private String title;
     private String body;
+    private NotificationType notificationType;
     private String image;
 }

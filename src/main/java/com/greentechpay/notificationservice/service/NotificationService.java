@@ -1,10 +1,8 @@
 package com.greentechpay.notificationservice.service;
 
-import com.greentechpay.notificationservice.dto.NotificationDto;
-import com.greentechpay.notificationservice.dto.NotificationType;
-import com.greentechpay.notificationservice.dto.PageRequestDto;
-import com.greentechpay.notificationservice.dto.PageResponse;
+import com.greentechpay.notificationservice.dto.*;
 import com.greentechpay.notificationservice.entity.Notification;
+import com.greentechpay.notificationservice.mapper.CustomNotificationMapper;
 import com.greentechpay.notificationservice.mapper.NotificationMapper;
 import com.greentechpay.notificationservice.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
@@ -13,26 +11,35 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final NotificationMapper notificationMapper;
+    private final CustomNotificationMapper customNotificationMapper;
 
-    public void create(Notification notification) {
+    public void create(PaymentNotificationMessageEvent paymentNotificationMessageEvent) {
+        var notification = customNotificationMapper.convertFromPaymentNotificationMessageEvent(paymentNotificationMessageEvent);
         notification.setSendDate(LocalDateTime.now());
         notification.setReadStatus(false);
         notification.setNotificationType(NotificationType.NOTIFICATION);
         notificationRepository.save(notification);
+        if (paymentNotificationMessageEvent.getReceiverUserId() != null) {
+            var receiverNotification = customNotificationMapper
+                    .convertFromPaymentNotificationMessageEventForReceiver(paymentNotificationMessageEvent);
+            receiverNotification.setSendDate(LocalDateTime.now());
+            receiverNotification.setReadStatus(false);
+            receiverNotification.setNotificationType(NotificationType.NOTIFICATION);
+            notificationRepository.save(receiverNotification);
+        }
     }
 
-    public void createAll(List<Notification> notificationList) {
+    public void createAll(NotificationMessageToAll notificationMessageToAll) {
+        var notificationList= customNotificationMapper.convertFromNotificationMessageAll(notificationMessageToAll);
         for (Notification notification : notificationList) {
             notification.setSendDate(LocalDateTime.now());
             notification.setReadStatus(false);
-            notification.setNotificationType(NotificationType.CAMPAIGN);
         }
         notificationRepository.saveAll(notificationList);
     }

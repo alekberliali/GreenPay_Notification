@@ -9,6 +9,7 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -16,10 +17,9 @@ public class TokenService {
     private final UserDeviceTokenRepository userDeviceTokenRepository;
     private final DeviceTokenMapper deviceTokenMapper;
 
-    @KafkaListener(topics = "login-device-token" , groupId = "2",
+    @KafkaListener(topics = "login-device-token", groupId = "2",
             containerFactory = "kafkaListenerContainerFactoryLoginDeviceToken")
     public void create(LoginDeviceTokenEvent loginDeviceTokenEvent) {
-        System.out.println(loginDeviceTokenEvent.getDeviceToken());
         if (!userDeviceTokenRepository.existsByUserId(loginDeviceTokenEvent.getUserId())) {
             UserDeviceToken userDeviceToken = deviceTokenMapper.dtoToEntity(loginDeviceTokenEvent);
             userDeviceToken.setCreatedAt(LocalDateTime.now());
@@ -33,6 +33,10 @@ public class TokenService {
     }
 
     protected String getDeviceTokenByUserId(String userId) {
-        return userDeviceTokenRepository.getDeviceTokenByUserId(userId);
+        return userDeviceTokenRepository.findDeviceTokenByUserId(userId);
+    }
+
+    protected List<String> getDeviceTokenListByUserIdList(List<String> userIdList){
+        return userDeviceTokenRepository.findTokensByUserIds(userIdList);
     }
 }
