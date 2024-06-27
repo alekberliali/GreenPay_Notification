@@ -16,7 +16,7 @@ public class FirebaseMessagingService {
     private final NotificationService notificationService;
     private final MessageService messageService;
 
-   // @KafkaListener(topics = "Notification-Message", containerFactory = "kafkaListenerContainerFactoryPaymentNotificationMessage")
+    @KafkaListener(topics = "Notification-Message", containerFactory = "kafkaListenerContainerFactoryPaymentNotificationMessage")
     public String sendNotificationByToken(PaymentNotificationMessageEvent paymentNotificationMessageEvent) {
         if (paymentNotificationMessageEvent.getTitle().equals("SIMA")) {
 
