@@ -1,5 +1,6 @@
 package com.greentechpay.notificationservice.entity;
 
+import com.greentechpay.notificationservice.dto.Body;
 import com.greentechpay.notificationservice.dto.NotificationType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

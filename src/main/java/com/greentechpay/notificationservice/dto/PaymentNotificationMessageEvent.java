@@ -6,10 +6,12 @@ import java.util.Map;
 
 @Data
 public class PaymentNotificationMessageEvent {
-    private String UserId;
+
     private String Title;
-    private String Body;
-    private String ToUser;
+    private String UserId;
+    private Body Body;
+    private String ReceiverUserId;
+    private Body ReceiverBody;
     private String Image;
     private Map<String, String> Data;
 }
