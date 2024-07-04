@@ -14,6 +14,7 @@ import java.util.concurrent.ExecutionException;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/notification")
+@CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE})
 public class NotificationController {
     private final FirebaseMessagingService firebaseMessagingService;
     private final NotificationService notificationService;
