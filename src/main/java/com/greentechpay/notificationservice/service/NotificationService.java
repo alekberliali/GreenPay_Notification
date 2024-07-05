@@ -10,7 +10,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -36,7 +38,7 @@ public class NotificationService {
     }
 
     public void createAll(NotificationMessageToAll notificationMessageToAll) {
-        var notificationList= customNotificationMapper.convertFromNotificationMessageAll(notificationMessageToAll);
+        var notificationList = customNotificationMapper.convertFromNotificationMessageAll(notificationMessageToAll);
         for (Notification notification : notificationList) {
             notification.setSendDate(LocalDateTime.now());
             notification.setReadStatus(false);
@@ -44,7 +46,7 @@ public class NotificationService {
         notificationRepository.saveAll(notificationList);
     }
 
-    public PageResponse<NotificationDto> getAllByUserId(String userId, PageRequestDto pageRequestDto) {
+    /*public PageResponse<NotificationDto> getAllByUserId(String userId, PageRequestDto pageRequestDto) {
 
         var pageRequest = PageRequest.of(pageRequestDto.page(), pageRequestDto.size());
         var result = notificationRepository.findAllByUserId(pageRequest, userId);
@@ -54,6 +56,27 @@ public class NotificationService {
                 .content(result.getContent().stream()
                         .map(notificationMapper::entityToDto)
                         .toList())
+                .build();
+    }*/
+
+    public PageResponse<Map<LocalDate, List<NotificationDto>>> getAllByUserId(String userId, PageRequestDto pageRequestDto) {
+        var pageRequest = PageRequest.of(pageRequestDto.page(), pageRequestDto.size());
+        var result = notificationRepository.findAllByUserId(pageRequest, userId);
+
+        Map<LocalDate, List<NotificationDto>> notifcationMap = new HashMap<>();
+        for (Notification dto : result) {
+            LocalDate date = dto.getSendDate().toLocalDate();
+            List<NotificationDto> notificationDtoList = notifcationMap.getOrDefault(date, new ArrayList<>());
+            notificationDtoList.add(notificationMapper.entityToDto(dto));
+            notifcationMap.put(date,notificationDtoList);
+        }
+        Map<LocalDate,List<NotificationDto>> sortedMap= new TreeMap<>(Collections.reverseOrder());
+        sortedMap.putAll(notifcationMap);
+
+        return PageResponse.<Map<LocalDate, List<NotificationDto>>> builder()
+                .totalPages(result.getTotalPages())
+                .totalElements(result.getTotalElements())
+                .content(sortedMap)
                 .build();
     }
 

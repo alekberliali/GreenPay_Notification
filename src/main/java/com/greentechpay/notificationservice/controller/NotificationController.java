@@ -9,6 +9,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 @RestController
@@ -35,7 +38,7 @@ public class NotificationController {
     }
 
     @PostMapping("/page/{userId}")
-    public ResponseEntity<PageResponse<NotificationDto>>
+    public ResponseEntity<PageResponse<Map<LocalDate, List<NotificationDto>>>>
     getAllWithPageByUserId(@PathVariable String userId, @Valid @RequestBody PageRequestDto pageRequestDto) {
         return ResponseEntity.ok(notificationService.getAllByUserId(userId, pageRequestDto));
     }
