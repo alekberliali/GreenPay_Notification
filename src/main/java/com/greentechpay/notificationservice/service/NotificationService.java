@@ -46,18 +46,6 @@ public class NotificationService {
         notificationRepository.saveAll(notificationList);
     }
 
-    /*public PageResponse<NotificationDto> getAllByUserId(String userId, PageRequestDto pageRequestDto) {
-
-        var pageRequest = PageRequest.of(pageRequestDto.page(), pageRequestDto.size());
-        var result = notificationRepository.findAllByUserId(pageRequest, userId);
-        return PageResponse.<NotificationDto>builder()
-                .totalElements(result.getTotalElements())
-                .totalPages(result.getTotalPages())
-                .content(result.getContent().stream()
-                        .map(notificationMapper::entityToDto)
-                        .toList())
-                .build();
-    }*/
 
     public PageResponse<Map<LocalDate, List<NotificationDto>>> getAllByUserId(String userId, PageRequestDto pageRequestDto) {
         var pageRequest = PageRequest.of(pageRequestDto.page(), pageRequestDto.size());

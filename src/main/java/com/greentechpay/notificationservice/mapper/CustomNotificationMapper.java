@@ -13,10 +13,13 @@ public class CustomNotificationMapper {
     public Notification convertFromPaymentNotificationMessageEvent(PaymentNotificationMessageEvent paymentNotificationMessageEvent) {
         var body = paymentNotificationMessageEvent.getBody();
         Notification notification = new Notification();
-        notification.setUserId(paymentNotificationMessageEvent.getUserId());
         notification.setTitle(paymentNotificationMessageEvent.getTitle());
-        notification.setBody("-" + body.getAmount() + " " + body.getCurrency() +
-                ", " + body.getRequestField() + " " + body.getDate());
+        notification.setUserId(paymentNotificationMessageEvent.getUserId());
+        if (paymentNotificationMessageEvent.getTitle().equals("SIMA")) {
+            notification.setBody(body.getDescription());
+        } else {
+            notification.setBody("-" + body.getAmount() + " " + body.getCurrency() + ", " + body.getDate());
+        }
         return notification;
     }
 
@@ -26,7 +29,7 @@ public class CustomNotificationMapper {
         notification.setUserId(paymentNotificationMessageEvent.getReceiverUserId());
         notification.setTitle(paymentNotificationMessageEvent.getTitle());
         notification.setBody("+" + requestBody.getAmount() + " " + requestBody.getCurrency() +
-                ", " + requestBody.getRequestField() + " " + requestBody.getDate());
+                ", " + requestBody.getDate());
         return notification;
     }
 

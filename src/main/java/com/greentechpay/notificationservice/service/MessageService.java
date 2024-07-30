@@ -10,11 +10,13 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.time.format.DateTimeFormatter;
 
 @Service
 @RequiredArgsConstructor
 public class MessageService {
     private final TokenService tokenService;
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
     protected Message generateSimaMessage(PaymentNotificationMessageEvent paymentNotificationMessageEvent) {
         Notification notification = Notification.builder()
                 .setTitle(paymentNotificationMessageEvent.getTitle())
@@ -30,7 +32,7 @@ public class MessageService {
         Notification notification = Notification.builder()
                 .setTitle(paymentNotificationMessageEvent.getTitle())
                 .setBody("-" + body.getAmount() + " " + body.getCurrency() +
-                        ", " + body.getRequestField() + " " + body.getDate())
+                        ", "+ body.getDate())
                 .setImage(paymentNotificationMessageEvent.getImage())
                 .build();
         return Message.builder()
@@ -43,7 +45,7 @@ public class MessageService {
         Notification receiverNotification = Notification.builder()
                 .setTitle(paymentNotificationMessageEvent.getTitle())
                 .setBody("+" + requestBody.getAmount() + " " + requestBody.getCurrency() +
-                        ", " + requestBody.getRequestField() + " " + requestBody.getDate())
+                        ", "+ requestBody.getDate())
                 .build();
         return Message.builder()
                 .setToken(tokenService.getDeviceTokenByUserId(paymentNotificationMessageEvent.getReceiverUserId()))
