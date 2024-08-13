@@ -36,4 +36,5 @@ publish:
     - docker push $FINAL_IMAGE
   tags:
     - build
+    
   
