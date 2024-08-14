@@ -81,6 +81,11 @@ public class NotificationService {
     }
 
     @Transactional
+    public void readAll(String userId){
+        notificationRepository.readAll(userId);
+    }
+
+    @Transactional
     public void delete(String userId) {
         notificationRepository.deleteAllByUserId(userId);
     }
