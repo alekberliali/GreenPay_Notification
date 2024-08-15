@@ -43,6 +43,12 @@ public class NotificationController {
         return ResponseEntity.ok(notificationService.getAllByUserId(userId, pageRequestDto));
     }
 
+    @GetMapping("/read-all/{userId}")
+    @ResponseStatus(HttpStatus.OK)
+    public void readAll(@PathVariable String userId) {
+        notificationService.readAll(userId);
+    }
+
     @DeleteMapping("/all/{userId}")
     @ResponseStatus(HttpStatus.OK)
     public void deleteAllByUserId(@PathVariable String userId) {
