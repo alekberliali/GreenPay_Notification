@@ -32,5 +32,3 @@ out/
 /dist/
 /nbdist/
 /.nb-gradle/
-
-.gitlab-ci.yml
