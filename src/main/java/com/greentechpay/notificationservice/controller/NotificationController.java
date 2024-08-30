@@ -1,6 +1,11 @@
 package com.greentechpay.notificationservice.controller;
 
 import com.greentechpay.notificationservice.dto.*;
+import com.greentechpay.notificationservice.dto.request.PageRequestDto;
+import com.greentechpay.notificationservice.dto.response.NotificationDto;
+import com.greentechpay.notificationservice.dto.response.PageResponse;
+import com.greentechpay.notificationservice.dto.response.ResponseDto;
+import com.greentechpay.notificationservice.kafka.dto.PaymentNotificationMessageEvent;
 import com.greentechpay.notificationservice.service.FirebaseMessagingService;
 import com.greentechpay.notificationservice.service.NotificationService;
 import jakarta.validation.Valid;
@@ -16,7 +21,7 @@ import java.util.concurrent.ExecutionException;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/notification")
+@RequestMapping("api/v1/notification")
 @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE})
 public class NotificationController {
     private final FirebaseMessagingService firebaseMessagingService;
@@ -59,5 +64,10 @@ public class NotificationController {
     @ResponseStatus(HttpStatus.OK)
     public void deleteById(@PathVariable Long id) {
         notificationService.deleteById(id);
+    }
+
+    @GetMapping("/get-status/{userId}")
+    public ResponseEntity<ResponseDto<Boolean>> getStatus(@PathVariable String userId) {
+        return ResponseEntity.ok(notificationService.getReadStatusByUserId(userId));
     }
 }

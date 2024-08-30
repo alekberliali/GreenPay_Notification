@@ -1,6 +1,6 @@
 package com.greentechpay.notificationservice.service;
 
-import com.greentechpay.notificationservice.dto.LoginDeviceTokenEvent;
+import com.greentechpay.notificationservice.kafka.dto.LoginDeviceTokenEvent;
 import com.greentechpay.notificationservice.entity.UserDeviceToken;
 import com.greentechpay.notificationservice.mapper.DeviceTokenMapper;
 import com.greentechpay.notificationservice.repository.UserDeviceTokenRepository;
@@ -11,14 +11,15 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static com.greentechpay.notificationservice.kafka.KafkaConfigs.*;
+
 @Service
 @RequiredArgsConstructor
 public class TokenService {
     private final UserDeviceTokenRepository userDeviceTokenRepository;
     private final DeviceTokenMapper deviceTokenMapper;
 
-    @KafkaListener(topics = "login-device-token", groupId = "2",
-            containerFactory = "kafkaListenerContainerFactoryLoginDeviceToken")
+    @KafkaListener(topics = LOGIN_DEVICE_TOPIC, containerFactory = LOGIN_DEVICE_CONTAINER_FACTORY)
     public void create(LoginDeviceTokenEvent loginDeviceTokenEvent) {
         if (!userDeviceTokenRepository.existsByUserId(loginDeviceTokenEvent.getUserId())) {
             UserDeviceToken userDeviceToken = deviceTokenMapper.dtoToEntity(loginDeviceTokenEvent);
@@ -36,7 +37,7 @@ public class TokenService {
         return userDeviceTokenRepository.findDeviceTokenByUserId(userId);
     }
 
-    protected List<String> getDeviceTokenListByUserIdList(List<String> userIdList){
+    protected List<String> getDeviceTokenListByUserIdList(List<String> userIdList) {
         return userDeviceTokenRepository.findTokensByUserIds(userIdList);
     }
 }

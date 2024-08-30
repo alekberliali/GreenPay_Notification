@@ -1,6 +1,6 @@
 package com.greentechpay.notificationservice.mapper;
 
-import com.greentechpay.notificationservice.dto.LoginDeviceTokenEvent;
+import com.greentechpay.notificationservice.kafka.dto.LoginDeviceTokenEvent;
 import com.greentechpay.notificationservice.entity.UserDeviceToken;
 import org.mapstruct.Mapper;
 

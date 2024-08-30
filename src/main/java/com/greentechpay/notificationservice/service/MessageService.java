@@ -4,7 +4,7 @@ import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.MulticastMessage;
 import com.google.firebase.messaging.Notification;
 import com.greentechpay.notificationservice.dto.NotificationMessageToAll;
-import com.greentechpay.notificationservice.dto.PaymentNotificationMessageEvent;
+import com.greentechpay.notificationservice.kafka.dto.PaymentNotificationMessageEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +16,6 @@ import java.time.format.DateTimeFormatter;
 @RequiredArgsConstructor
 public class MessageService {
     private final TokenService tokenService;
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
     protected Message generateSimaMessage(PaymentNotificationMessageEvent paymentNotificationMessageEvent) {
         Notification notification = Notification.builder()
                 .setTitle(paymentNotificationMessageEvent.getTitle())

@@ -1,7 +1,7 @@
 package com.greentechpay.notificationservice.kafka;
 
-import com.greentechpay.notificationservice.dto.LoginDeviceTokenEvent;
-import com.greentechpay.notificationservice.dto.PaymentNotificationMessageEvent;
+import com.greentechpay.notificationservice.kafka.dto.LoginDeviceTokenEvent;
+import com.greentechpay.notificationservice.kafka.dto.PaymentNotificationMessageEvent;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -11,11 +11,17 @@ import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
+import org.springframework.kafka.listener.CommonErrorHandler;
+import org.springframework.kafka.listener.DefaultErrorHandler;
+import org.springframework.kafka.support.ExponentialBackOffWithMaxRetries;
 import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static com.greentechpay.notificationservice.kafka.KafkaConfigs.*;
+import static org.apache.kafka.clients.consumer.OffsetResetStrategy.EARLIEST;
 
 @Configuration
 @EnableKafka
@@ -23,17 +29,33 @@ import java.util.Map;
 public class KafkaConsumerConfig {
 
     private final KafkaConfigs kafkaConfigs;
+
     @Bean
-    public ConsumerFactory<String, LoginDeviceTokenEvent> consumerFactoryLoginDeviceToken() {
+    public CommonErrorHandler errorHandler() {
+        ExponentialBackOffWithMaxRetries backOff = new ExponentialBackOffWithMaxRetries(3);
+        backOff.setInitialInterval(1000L);
+        backOff.setMultiplier(2);
+        backOff.setMaxInterval(10000L);
+        return new DefaultErrorHandler(backOff);
+    }
+
+    private Map<String, Object> consumerConfigs() {
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaConfigs.getServer());
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, "5");
-        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class.getName());
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class.getName());
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, "7");
+        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class);
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class);
         props.put(ErrorHandlingDeserializer.KEY_DESERIALIZER_CLASS, StringDeserializer.class.getName());
         props.put(ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, JsonDeserializer.class.getName());
+        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, EARLIEST.toString());
         props.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
-        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, "com.greentechpay.notificationservice.dto.LoginDeviceTokenEvent");
+        return props;
+    }
+
+    @Bean
+    public ConsumerFactory<String, LoginDeviceTokenEvent> consumerFactoryLoginDeviceToken() {
+        Map<String, Object> props = consumerConfigs();
+        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, LOGIN_DEVICE_TOKEN_EVENT_PATH);
         return new DefaultKafkaConsumerFactory<>(props);
     }
 
@@ -48,15 +70,8 @@ public class KafkaConsumerConfig {
 
     @Bean
     public ConsumerFactory<String, PaymentNotificationMessageEvent> consumerFactoryPaymentNotificationMessage() {
-        Map<String, Object> props = new HashMap<>();
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaConfigs.getServer());
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, "10");
-        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class.getName());
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class.getName());
-        props.put(ErrorHandlingDeserializer.KEY_DESERIALIZER_CLASS, StringDeserializer.class.getName());
-        props.put(ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, JsonDeserializer.class.getName());
-        props.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
-        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, "com.greentechpay.notificationservice.dto.PaymentNotificationMessageEvent");
+        Map<String, Object> props = consumerConfigs();
+        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, NOTIFICATION_EVENT_PATH);
         return new DefaultKafkaConsumerFactory<>(props);
     }
 

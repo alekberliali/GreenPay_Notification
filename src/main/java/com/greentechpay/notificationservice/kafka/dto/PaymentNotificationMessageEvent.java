@@ -1,5 +1,6 @@
-package com.greentechpay.notificationservice.dto;
+package com.greentechpay.notificationservice.kafka.dto;
 
+import com.greentechpay.notificationservice.dto.Body;
 import lombok.Data;
 
 import java.util.Map;
@@ -9,7 +10,7 @@ public class PaymentNotificationMessageEvent {
 
     private String Title;
     private String UserId;
-    private Body Body;
+    private com.greentechpay.notificationservice.dto.Body Body;
     private String ReceiverUserId;
     private Body ReceiverBody;
     private String Image;

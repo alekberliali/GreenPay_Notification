@@ -1,6 +1,6 @@
 package com.greentechpay.notificationservice.mapper;
 
-import com.greentechpay.notificationservice.dto.NotificationDto;
+import com.greentechpay.notificationservice.dto.response.NotificationDto;
 import com.greentechpay.notificationservice.entity.Notification;
 import org.mapstruct.Mapper;
 
