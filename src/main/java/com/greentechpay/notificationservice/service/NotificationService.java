@@ -1,7 +1,13 @@
 package com.greentechpay.notificationservice.service;
 
 import com.greentechpay.notificationservice.dto.*;
+import com.greentechpay.notificationservice.dto.request.PageRequestDto;
+import com.greentechpay.notificationservice.dto.response.NotificationDto;
+import com.greentechpay.notificationservice.dto.response.PageResponse;
+import com.greentechpay.notificationservice.dto.response.ResponseDto;
 import com.greentechpay.notificationservice.entity.Notification;
+import com.greentechpay.notificationservice.exception.NotificationIsNotFound;
+import com.greentechpay.notificationservice.kafka.dto.PaymentNotificationMessageEvent;
 import com.greentechpay.notificationservice.mapper.CustomNotificationMapper;
 import com.greentechpay.notificationservice.mapper.NotificationMapper;
 import com.greentechpay.notificationservice.repository.NotificationRepository;
@@ -13,6 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
+
+import static com.greentechpay.notificationservice.utils.ResponseMessage.*;
 
 @Service
 @RequiredArgsConstructor
@@ -56,12 +64,12 @@ public class NotificationService {
             LocalDate date = dto.getSendDate().toLocalDate();
             List<NotificationDto> notificationDtoList = notifcationMap.getOrDefault(date, new ArrayList<>());
             notificationDtoList.add(notificationMapper.entityToDto(dto));
-            notifcationMap.put(date,notificationDtoList);
+            notifcationMap.put(date, notificationDtoList);
         }
-        Map<LocalDate,List<NotificationDto>> sortedMap= new TreeMap<>(Collections.reverseOrder());
+        Map<LocalDate, List<NotificationDto>> sortedMap = new TreeMap<>(Collections.reverseOrder());
         sortedMap.putAll(notifcationMap);
 
-        return PageResponse.<Map<LocalDate, List<NotificationDto>>> builder()
+        return PageResponse.<Map<LocalDate, List<NotificationDto>>>builder()
                 .totalPages(result.getTotalPages())
                 .totalElements(result.getTotalElements())
                 .content(sortedMap)
@@ -70,7 +78,7 @@ public class NotificationService {
 
     public NotificationDto getById(Long id) {
         var notification = notificationRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("notification could not find by id: " + id));
+                .orElseThrow(() -> new NotificationIsNotFound(NOTIFICATION_ID_IS_NOT_EXIST + id));
         updateNotificationStatus(notification);
         return notificationMapper.entityToDto(notification);
     }
@@ -81,7 +89,7 @@ public class NotificationService {
     }
 
     @Transactional
-    public void readAll(String userId){
+    public void readAll(String userId) {
         notificationRepository.readAll(userId);
     }
 
@@ -93,6 +101,14 @@ public class NotificationService {
     public void deleteById(Long id) {
         if (notificationRepository.existsById(id)) {
             notificationRepository.deleteById(id);
-        } else throw new RuntimeException("notification could not find by id: " + id);
+        } else throw new NotificationIsNotFound(NOTIFICATION_ID_IS_NOT_EXIST + id);
+    }
+
+    public ResponseDto<Boolean> getReadStatusByUserId(String userId) {
+        Long count = notificationRepository.countUnreadNotificationsByUserId(userId);
+        Boolean result = count > 0;
+        return ResponseDto.<Boolean>builder()
+                .data(result)
+                .build();
     }
 }

@@ -1,6 +1,6 @@
 package com.greentechpay.notificationservice.controller;
 
-import com.greentechpay.notificationservice.dto.LoginDeviceTokenEvent;
+import com.greentechpay.notificationservice.kafka.dto.LoginDeviceTokenEvent;
 import com.greentechpay.notificationservice.service.TokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

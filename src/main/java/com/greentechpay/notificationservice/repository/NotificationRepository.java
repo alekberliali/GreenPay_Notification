@@ -19,4 +19,7 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     @Modifying
     @Query("update Notification notification set notification.readStatus=true where notification.userId=:userId")
     void readAll(@Param("userId") String userId);
+
+    @Query("SELECT COUNT(n) FROM Notification n WHERE n.userId = :userId AND n.readStatus = false")
+    Long countUnreadNotificationsByUserId(@Param("userId") String userId);
 }

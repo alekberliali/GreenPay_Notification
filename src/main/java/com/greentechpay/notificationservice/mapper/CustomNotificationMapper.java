@@ -1,7 +1,7 @@
 package com.greentechpay.notificationservice.mapper;
 
 import com.greentechpay.notificationservice.dto.NotificationMessageToAll;
-import com.greentechpay.notificationservice.dto.PaymentNotificationMessageEvent;
+import com.greentechpay.notificationservice.kafka.dto.PaymentNotificationMessageEvent;
 import com.greentechpay.notificationservice.entity.Notification;
 import org.springframework.stereotype.Component;
 

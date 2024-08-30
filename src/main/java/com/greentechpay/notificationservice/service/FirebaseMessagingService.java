@@ -2,12 +2,14 @@ package com.greentechpay.notificationservice.service;
 
 import com.google.firebase.messaging.*;
 import com.greentechpay.notificationservice.dto.NotificationMessageToAll;
-import com.greentechpay.notificationservice.dto.PaymentNotificationMessageEvent;
+import com.greentechpay.notificationservice.kafka.dto.PaymentNotificationMessageEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
-
 import java.util.concurrent.ExecutionException;
+
+import static com.greentechpay.notificationservice.kafka.KafkaConfigs.*;
+import static com.greentechpay.notificationservice.utils.ResponseMessage.*;
 
 @Service
 @RequiredArgsConstructor
@@ -16,7 +18,7 @@ public class FirebaseMessagingService {
     private final NotificationService notificationService;
     private final MessageService messageService;
 
-    @KafkaListener(topics = "Notification-Message", containerFactory = "kafkaListenerContainerFactoryPaymentNotificationMessage")
+    @KafkaListener(topics = NOTIFICATION_TOPIC, containerFactory = NOTIFICATION_CONTAINER_FACTORY)
     public String sendNotificationByToken(PaymentNotificationMessageEvent paymentNotificationMessageEvent) {
         if (paymentNotificationMessageEvent.getTitle().equals("SIMA")) {
 
@@ -25,10 +27,10 @@ public class FirebaseMessagingService {
 
             try {
                 firebaseMessaging.send(message);
-                return "Success Sending Notification";
+                return SUCCESS;
             } catch (FirebaseMessagingException exception) {
                 exception.printStackTrace();
-                return "Error Sending Notification";
+                return ERROR;
             }
         } else if (paymentNotificationMessageEvent.getReceiverUserId() != null) {
             var message = messageService.generateSenderMessage(paymentNotificationMessageEvent);
@@ -40,10 +42,10 @@ public class FirebaseMessagingService {
             try {
                 firebaseMessaging.send(message);
                 firebaseMessaging.send(receiverMessage);
-                return "Success Sending Notification";
+                return SUCCESS;
             } catch (FirebaseMessagingException exception) {
                 exception.printStackTrace();
-                return "Error Sending Notification";
+                return ERROR;
             }
 
         } else {
@@ -52,10 +54,10 @@ public class FirebaseMessagingService {
 
             try {
                 firebaseMessaging.send(message);
-                return "Success Sending Notification";
+                return SUCCESS;
             } catch (FirebaseMessagingException exception) {
                 exception.printStackTrace();
-                return "Error Sending Notification";
+                return ERROR;
             }
         }
     }
