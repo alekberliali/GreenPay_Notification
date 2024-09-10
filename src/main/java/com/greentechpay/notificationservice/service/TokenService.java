@@ -21,7 +21,7 @@ public class TokenService {
 
     @KafkaListener(topics = LOGIN_DEVICE_TOPIC, containerFactory = LOGIN_DEVICE_CONTAINER_FACTORY)
     public void create(LoginDeviceTokenEvent loginDeviceTokenEvent) {
-        if (!userDeviceTokenRepository.existsByUserId(loginDeviceTokenEvent.getUserId())) {
+        if (!existsByUserId(loginDeviceTokenEvent.getUserId())) {
             UserDeviceToken userDeviceToken = deviceTokenMapper.dtoToEntity(loginDeviceTokenEvent);
             userDeviceToken.setCreatedAt(LocalDateTime.now());
             userDeviceTokenRepository.save(userDeviceToken);
@@ -31,6 +31,10 @@ public class TokenService {
             userDeviceToken.setUpdatedAt(LocalDateTime.now());
             userDeviceTokenRepository.save(userDeviceToken);
         }
+    }
+
+    protected Boolean existsByUserId(String userId) {
+       return userDeviceTokenRepository.existsByUserId(userId);
     }
 
     protected String getDeviceTokenByUserId(String userId) {
