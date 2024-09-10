@@ -4,8 +4,11 @@ import com.google.firebase.messaging.*;
 import com.greentechpay.notificationservice.dto.NotificationMessageToAll;
 import com.greentechpay.notificationservice.kafka.dto.PaymentNotificationMessageEvent;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
+
 import java.util.concurrent.ExecutionException;
 
 import static com.greentechpay.notificationservice.kafka.KafkaConfigs.*;
@@ -17,48 +20,58 @@ public class FirebaseMessagingService {
     private final FirebaseMessaging firebaseMessaging;
     private final NotificationService notificationService;
     private final MessageService messageService;
+    private final TokenService tokenService;
+
+    private static final Logger logger = LoggerFactory.getLogger(FirebaseMessagingService.class);
 
     @KafkaListener(topics = NOTIFICATION_TOPIC, containerFactory = NOTIFICATION_CONTAINER_FACTORY)
-    public String sendNotificationByToken(PaymentNotificationMessageEvent paymentNotificationMessageEvent) {
-        if (paymentNotificationMessageEvent.getTitle().equals("SIMA")) {
+    public String sendNotificationByToken(PaymentNotificationMessageEvent event) {
+        Boolean existsByUserId = tokenService.existsByUserId(event.getUserId());
+        Boolean existsByReceiverUserId = tokenService.existsByUserId(event.getReceiverUserId());
 
-            var message = messageService.generateSimaMessage(paymentNotificationMessageEvent);
-            notificationService.create(paymentNotificationMessageEvent);
+        if (Boolean.FALSE.equals(existsByUserId)) {
+            logger.error("This user id could not find: {}", event.getUserId());
+            return null;
+        }
 
-            try {
-                firebaseMessaging.send(message);
-                return SUCCESS;
-            } catch (FirebaseMessagingException exception) {
-                exception.printStackTrace();
-                return ERROR;
-            }
-        } else if (paymentNotificationMessageEvent.getReceiverUserId() != null) {
-            var message = messageService.generateSenderMessage(paymentNotificationMessageEvent);
+        if (Boolean.FALSE.equals(existsByReceiverUserId)) {
+            return handleSingleUserNotification(event);
+        }
 
-            var receiverMessage = messageService.generateReceiverMessage(paymentNotificationMessageEvent);
+        return handleBothUserNotification(event);
+    }
 
-            notificationService.create(paymentNotificationMessageEvent);
+    private String handleBothUserNotification(PaymentNotificationMessageEvent event) {
+        var senderMessage = messageService.generateSenderMessage(event);
+        var receiverMessage = messageService.generateReceiverMessage(event);
+        notificationService.create(event);
 
-            try {
-                firebaseMessaging.send(message);
-                firebaseMessaging.send(receiverMessage);
-                return SUCCESS;
-            } catch (FirebaseMessagingException exception) {
-                exception.printStackTrace();
-                return ERROR;
-            }
+        try {
+            firebaseMessaging.send(senderMessage);
+            firebaseMessaging.send(receiverMessage);
+            return SUCCESS;
+        } catch (FirebaseMessagingException exception) {
+            logger.error("Failed to send sender and receiver notification: {}", exception.getMessage());
+            return ERROR;
+        }
+    }
 
+    private String handleSingleUserNotification(PaymentNotificationMessageEvent event) {
+        if ("SIMA".equals(event.getTitle())) {
+            return sendNotification(event, messageService.generateSimaMessage(event));
         } else {
-            var message = messageService.generateSenderMessage(paymentNotificationMessageEvent);
-            notificationService.create(paymentNotificationMessageEvent);
+            return sendNotification(event, messageService.generateSenderMessage(event));
+        }
+    }
 
-            try {
-                firebaseMessaging.send(message);
-                return SUCCESS;
-            } catch (FirebaseMessagingException exception) {
-                exception.printStackTrace();
-                return ERROR;
-            }
+    private String sendNotification(PaymentNotificationMessageEvent event, Message message) {
+        notificationService.create(event);
+        try {
+            firebaseMessaging.send(message);
+            return SUCCESS;
+        } catch (FirebaseMessagingException exception) {
+            logger.error("Failed to send notification: {}", exception.getMessage());
+            return ERROR;
         }
     }
 
