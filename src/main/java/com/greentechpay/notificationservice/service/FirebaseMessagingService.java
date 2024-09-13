@@ -26,6 +26,10 @@ public class FirebaseMessagingService {
 
     @KafkaListener(topics = NOTIFICATION_TOPIC, containerFactory = NOTIFICATION_CONTAINER_FACTORY)
     public String sendNotificationByToken(PaymentNotificationMessageEvent event) {
+
+        logger.info("title: {}, senderUserId: {}, receiverUserId: {}",
+                event.getTitle(), event.getUserId(), event.getReceiverUserId());
+
         Boolean existsByUserId = tokenService.existsByUserId(event.getUserId());
         Boolean existsByReceiverUserId = tokenService.existsByUserId(event.getReceiverUserId());
 

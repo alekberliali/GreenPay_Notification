@@ -8,13 +8,13 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Optional;
+
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
 
     @Query("select notification from Notification notification where notification.userId=:userId " +
             "order by notification.sendDate desc ")
-    Page<Notification> findAllByUserId(PageRequest pageRequest, String userId);
-
-    void deleteAllByUserId(String userId);
+    Optional<Page<Notification>> findAllByUserId(PageRequest pageRequest, String userId);
 
     @Modifying
     @Query("update Notification notification set notification.readStatus=true where notification.userId=:userId")
@@ -22,4 +22,7 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 
     @Query("SELECT COUNT(n) FROM Notification n WHERE n.userId = :userId AND n.readStatus = false")
     Long countUnreadNotificationsByUserId(@Param("userId") String userId);
+
+    @Query("SELECT CASE WHEN COUNT(e) > 0 THEN true ELSE false END FROM Notification e WHERE e.userId = :userId AND e.id = :id")
+    Boolean existsByUserIdAndId(@Param("userId") String userId, @Param("id") Long id);
 }
