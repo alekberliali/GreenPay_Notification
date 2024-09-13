@@ -7,6 +7,8 @@ import com.greentechpay.notificationservice.dto.response.PageResponse;
 import com.greentechpay.notificationservice.dto.response.ResponseDto;
 import com.greentechpay.notificationservice.entity.Notification;
 import com.greentechpay.notificationservice.exception.NotificationIsNotFound;
+import com.greentechpay.notificationservice.exception.UserIsNotFoundException;
+import com.greentechpay.notificationservice.jwt.JwtUtil;
 import com.greentechpay.notificationservice.kafka.dto.PaymentNotificationMessageEvent;
 import com.greentechpay.notificationservice.mapper.CustomNotificationMapper;
 import com.greentechpay.notificationservice.mapper.NotificationMapper;
@@ -28,6 +30,16 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final NotificationMapper notificationMapper;
     private final CustomNotificationMapper customNotificationMapper;
+    private final JwtUtil jwtUtil;
+
+    private String getUserIdFromToken(String token) {
+        String jwt = token.substring(7);
+        return jwtUtil.extractUserId(jwt);
+    }
+
+    private Boolean existByUserIdAndId(String userId, Long id) {
+        return notificationRepository.existsByUserIdAndId(userId, id);
+    }
 
     public void create(PaymentNotificationMessageEvent paymentNotificationMessageEvent) {
         var notification = customNotificationMapper.convertFromPaymentNotificationMessageEvent(paymentNotificationMessageEvent);
@@ -55,9 +67,13 @@ public class NotificationService {
     }
 
 
-    public PageResponse<Map<LocalDate, List<NotificationDto>>> getAllByUserId(String userId, PageRequestDto pageRequestDto) {
+    public PageResponse<Map<LocalDate, List<NotificationDto>>> getAllByUserId(String token, PageRequestDto pageRequestDto) {
+
+        String userId = getUserIdFromToken(token);
+
         var pageRequest = PageRequest.of(pageRequestDto.page(), pageRequestDto.size());
-        var result = notificationRepository.findAllByUserId(pageRequest, userId);
+        var result = notificationRepository.findAllByUserId(pageRequest, userId)
+                .orElseThrow(() -> new UserIsNotFoundException(USER_IS_NOT_FOUND + userId));
 
         Map<LocalDate, List<NotificationDto>> notifcationMap = new HashMap<>();
         for (Notification dto : result) {
@@ -76,7 +92,14 @@ public class NotificationService {
                 .build();
     }
 
-    public NotificationDto getById(Long id) {
+    public NotificationDto getById(String token, Long id) {
+
+        String userId = getUserIdFromToken(token);
+
+        if (Boolean.FALSE.equals(existByUserIdAndId(userId, id))) {
+             throw new NotificationIsNotFound(NOTIFICATION_ID_IS_NOT_EXIST + id);
+        }
+
         var notification = notificationRepository.findById(id)
                 .orElseThrow(() -> new NotificationIsNotFound(NOTIFICATION_ID_IS_NOT_EXIST + id));
         updateNotificationStatus(notification);
@@ -88,23 +111,26 @@ public class NotificationService {
         notificationRepository.save(notification);
     }
 
-    @Transactional
-    public void readAll(String userId) {
-        notificationRepository.readAll(userId);
-    }
+    public void deleteById(String token, Long id) {
+        String userId = getUserIdFromToken(token);
 
-    @Transactional
-    public void delete(String userId) {
-        notificationRepository.deleteAllByUserId(userId);
-    }
+        if (Boolean.FALSE.equals(existByUserIdAndId(userId, id))) {
+            throw new NotificationIsNotFound(NOTIFICATION_ID_IS_NOT_EXIST + id);
+        }
 
-    public void deleteById(Long id) {
         if (notificationRepository.existsById(id)) {
             notificationRepository.deleteById(id);
         } else throw new NotificationIsNotFound(NOTIFICATION_ID_IS_NOT_EXIST + id);
     }
 
-    public ResponseDto<Boolean> getReadStatusByUserId(String userId) {
+    @Transactional
+    public void readAll(String token) {
+        String userId = getUserIdFromToken(token);
+        notificationRepository.readAll(userId);
+    }
+
+    public ResponseDto<Boolean> getReadStatusByUserId(String token) {
+        String userId = getUserIdFromToken(token);
         Long count = notificationRepository.countUnreadNotificationsByUserId(userId);
         Boolean result = count > 0;
         return ResponseDto.<Boolean>builder()

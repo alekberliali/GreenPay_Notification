@@ -8,11 +8,11 @@ import java.util.Map;
 @Data
 public class PaymentNotificationMessageEvent {
 
-    private String Title;
-    private String UserId;
-    private com.greentechpay.notificationservice.dto.Body Body;
-    private String ReceiverUserId;
-    private Body ReceiverBody;
-    private String Image;
-    private Map<String, String> Data;
+    private String title;
+    private String userId;
+    private Body body;
+    private String receiverUserId;
+    private Body receiverBody;
+    private String image;
+    private Map<String, String> data;
 }

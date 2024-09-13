@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+import static com.greentechpay.notificationservice.utils.HeaderKey.*;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/v1/notification")
@@ -28,7 +30,8 @@ public class NotificationController {
     private final NotificationService notificationService;
 
     @PostMapping("/send-all")
-    public ResponseEntity<Integer> sendAll(@RequestBody NotificationMessageToAll notificationMessageToAll) throws ExecutionException, InterruptedException {
+    public ResponseEntity<Integer> sendAll(@RequestBody NotificationMessageToAll notificationMessageToAll)
+            throws ExecutionException, InterruptedException {
         return ResponseEntity.ok(firebaseMessagingService.sendNotificationToManyUser(notificationMessageToAll));
     }
 
@@ -38,36 +41,32 @@ public class NotificationController {
     }
 
     @GetMapping("/get/{id}")
-    public ResponseEntity<NotificationDto> getById(@PathVariable Long id) {
-        return ResponseEntity.ok(notificationService.getById(id));
+    public ResponseEntity<NotificationDto> getById(@RequestHeader(AUTHORIZATION) String token, @PathVariable Long id) {
+        return ResponseEntity.ok(notificationService.getById(token, id));
     }
 
-    @PostMapping("/page/{userId}")
+    @PostMapping("/page")
     public ResponseEntity<PageResponse<Map<LocalDate, List<NotificationDto>>>>
-    getAllWithPageByUserId(@PathVariable String userId, @Valid @RequestBody PageRequestDto pageRequestDto) {
-        return ResponseEntity.ok(notificationService.getAllByUserId(userId, pageRequestDto));
+    getAllWithPageByUserId(@RequestHeader(AUTHORIZATION) String token,
+                           @Valid @RequestBody PageRequestDto pageRequestDto) {
+        return ResponseEntity.ok(notificationService.getAllByUserId(token, pageRequestDto));
     }
 
-    @GetMapping("/read-all/{userId}")
+    @GetMapping("/read-all")
     @ResponseStatus(HttpStatus.OK)
-    public void readAll(@PathVariable String userId) {
-        notificationService.readAll(userId);
+    public void readAll(@RequestHeader(AUTHORIZATION) String token) {
+        notificationService.readAll(token);
     }
 
-    @DeleteMapping("/all/{userId}")
-    @ResponseStatus(HttpStatus.OK)
-    public void deleteAllByUserId(@PathVariable String userId) {
-        notificationService.delete(userId);
-    }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public void deleteById(@PathVariable Long id) {
-        notificationService.deleteById(id);
+    public void deleteById(@RequestHeader(AUTHORIZATION) String token, @PathVariable Long id) {
+        notificationService.deleteById(token, id);
     }
 
-    @GetMapping("/get-status/{userId}")
-    public ResponseEntity<ResponseDto<Boolean>> getStatus(@PathVariable String userId) {
-        return ResponseEntity.ok(notificationService.getReadStatusByUserId(userId));
+    @GetMapping("/get-status")
+    public ResponseEntity<ResponseDto<Boolean>> getStatus(@RequestHeader(AUTHORIZATION) String token) {
+        return ResponseEntity.ok(notificationService.getReadStatusByUserId(token));
     }
 }
