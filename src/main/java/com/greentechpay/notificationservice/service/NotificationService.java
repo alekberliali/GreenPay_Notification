@@ -67,12 +67,13 @@ public class NotificationService {
     }
 
 
-    public PageResponse<Map<LocalDate, List<NotificationDto>>> getAllByUserId(String token, PageRequestDto pageRequestDto) {
+    public PageResponse<Map<LocalDate, List<NotificationDto>>>
+    getAllByUserId(String token, NotificationType notificationType, PageRequestDto pageRequestDto) {
 
         String userId = getUserIdFromToken(token);
 
         var pageRequest = PageRequest.of(pageRequestDto.page(), pageRequestDto.size());
-        var result = notificationRepository.findAllByUserId(pageRequest, userId)
+        var result = notificationRepository.findAllByUserId(pageRequest, notificationType, userId)
                 .orElseThrow(() -> new UserIsNotFoundException(USER_IS_NOT_FOUND + userId));
 
         Map<LocalDate, List<NotificationDto>> notifcationMap = new HashMap<>();
@@ -97,7 +98,7 @@ public class NotificationService {
         String userId = getUserIdFromToken(token);
 
         if (Boolean.FALSE.equals(existByUserIdAndId(userId, id))) {
-             throw new NotificationIsNotFound(NOTIFICATION_ID_IS_NOT_EXIST + id);
+            throw new NotificationIsNotFound(NOTIFICATION_ID_IS_NOT_EXIST + id);
         }
 
         var notification = notificationRepository.findById(id)
