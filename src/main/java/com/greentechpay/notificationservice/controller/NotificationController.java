@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import static com.greentechpay.notificationservice.utils.HeaderKey.*;
+import static com.greentechpay.notificationservice.utils.ParamFilter.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -48,8 +49,9 @@ public class NotificationController {
     @PostMapping("/page")
     public ResponseEntity<PageResponse<Map<LocalDate, List<NotificationDto>>>>
     getAllWithPageByUserId(@RequestHeader(AUTHORIZATION) String token,
+                           @RequestParam(NOTIFICATION_TYPE) NotificationType notificationType,
                            @Valid @RequestBody PageRequestDto pageRequestDto) {
-        return ResponseEntity.ok(notificationService.getAllByUserId(token, pageRequestDto));
+        return ResponseEntity.ok(notificationService.getAllByUserId(token, notificationType, pageRequestDto));
     }
 
     @GetMapping("/read-all")

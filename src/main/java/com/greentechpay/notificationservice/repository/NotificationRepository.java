@@ -1,5 +1,6 @@
 package com.greentechpay.notificationservice.repository;
 
+import com.greentechpay.notificationservice.dto.NotificationType;
 import com.greentechpay.notificationservice.entity.Notification;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -13,8 +14,8 @@ import java.util.Optional;
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
 
     @Query("select notification from Notification notification where notification.userId=:userId " +
-            "order by notification.sendDate desc ")
-    Optional<Page<Notification>> findAllByUserId(PageRequest pageRequest, String userId);
+            "and notification.notificationType=:notificationType order by notification.sendDate desc ")
+    Optional<Page<Notification>> findAllByUserId(PageRequest pageRequest, NotificationType notificationType, String userId);
 
     @Modifying
     @Query("update Notification notification set notification.readStatus=true where notification.userId=:userId")
