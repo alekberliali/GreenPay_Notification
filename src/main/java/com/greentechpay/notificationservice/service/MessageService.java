@@ -26,6 +26,7 @@ public class MessageService {
                 .setNotification(notification)
                 .build();
     }
+    //TODO - or +
     protected Message generateSenderMessage(PaymentNotificationMessageEvent paymentNotificationMessageEvent) {
         var body = paymentNotificationMessageEvent.getBody();
         Notification notification = Notification.builder()
