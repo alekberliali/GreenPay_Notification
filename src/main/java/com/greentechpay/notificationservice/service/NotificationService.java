@@ -60,6 +60,7 @@ public class NotificationService {
     public void createAll(NotificationMessageToAll notificationMessageToAll) {
         var notificationList = customNotificationMapper.convertFromNotificationMessageAll(notificationMessageToAll);
         for (Notification notification : notificationList) {
+            notification.setNotificationType(notification.getNotificationType());
             notification.setSendDate(LocalDateTime.now());
             notification.setReadStatus(false);
         }
