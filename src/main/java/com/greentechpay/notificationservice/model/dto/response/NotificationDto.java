@@ -1,4 +1,4 @@
-package com.greentechpay.notificationservice.dto.response;
+package com.greentechpay.notificationservice.model.dto.response;
 
 import lombok.Data;
 

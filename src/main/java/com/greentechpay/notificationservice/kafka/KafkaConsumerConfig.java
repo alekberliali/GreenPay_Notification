@@ -2,6 +2,7 @@ package com.greentechpay.notificationservice.kafka;
 
 import com.greentechpay.notificationservice.kafka.dto.LoginDeviceTokenEvent;
 import com.greentechpay.notificationservice.kafka.dto.PaymentNotificationMessageEvent;
+import com.greentechpay.notificationservice.kafka.dto.SimaNotificationMessageEvent;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -71,7 +72,7 @@ public class KafkaConsumerConfig {
     @Bean
     public ConsumerFactory<String, PaymentNotificationMessageEvent> consumerFactoryPaymentNotificationMessage() {
         Map<String, Object> props = consumerConfigs();
-        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, NOTIFICATION_EVENT_PATH);
+        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, PAYMENT_NOTIFICATION_EVENT_PATH);
         return new DefaultKafkaConsumerFactory<>(props);
     }
 
@@ -81,6 +82,22 @@ public class KafkaConsumerConfig {
         ConcurrentKafkaListenerContainerFactory<String, PaymentNotificationMessageEvent> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactoryPaymentNotificationMessage());
+        return factory;
+    }
+
+    @Bean
+    public ConsumerFactory<String, SimaNotificationMessageEvent> consumerFactorySimaNotificationMessage() {
+        Map<String, Object> props = consumerConfigs();
+        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, SIMA_NOTIFICATION_EVENT_PATH);
+        return new DefaultKafkaConsumerFactory<>(props);
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, SimaNotificationMessageEvent>
+            kafkaListenerContainerFactorySimaNotificationMessage(){
+        ConcurrentKafkaListenerContainerFactory<String, SimaNotificationMessageEvent> factory =
+                new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(consumerFactorySimaNotificationMessage());
         return factory;
     }
 }

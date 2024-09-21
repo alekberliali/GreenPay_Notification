@@ -1,8 +1,8 @@
 package com.greentechpay.notificationservice.mapper;
 
-import com.greentechpay.notificationservice.dto.NotificationMessageToAll;
+import com.greentechpay.notificationservice.model.dto.NotificationMessageToAll;
 import com.greentechpay.notificationservice.kafka.dto.PaymentNotificationMessageEvent;
-import com.greentechpay.notificationservice.entity.Notification;
+import com.greentechpay.notificationservice.model.entity.Notification;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -40,6 +40,7 @@ public class CustomNotificationMapper {
             notification.setUserId(userId);
             notification.setTitle(notificationMessageToAll.getTitle());
             notification.setBody(notificationMessageToAll.getBody());
+            notification.setNotificationType(notification.getNotificationType());
             notificationList.add(notification);
         }
         return notificationList;

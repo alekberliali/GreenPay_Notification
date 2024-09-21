@@ -1,7 +1,7 @@
 package com.greentechpay.notificationservice.mapper;
 
-import com.greentechpay.notificationservice.dto.response.NotificationDto;
-import com.greentechpay.notificationservice.entity.Notification;
+import com.greentechpay.notificationservice.model.dto.response.NotificationDto;
+import com.greentechpay.notificationservice.model.entity.Notification;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")

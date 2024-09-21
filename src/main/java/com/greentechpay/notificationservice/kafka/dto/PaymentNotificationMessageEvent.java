@@ -1,6 +1,7 @@
 package com.greentechpay.notificationservice.kafka.dto;
 
-import com.greentechpay.notificationservice.dto.Body;
+import com.greentechpay.notificationservice.model.dto.Body;
+import com.greentechpay.notificationservice.model.enumarated.TransferType;
 import lombok.Data;
 
 import java.util.Map;
@@ -14,5 +15,6 @@ public class PaymentNotificationMessageEvent {
     private String receiverUserId;
     private Body receiverBody;
     private String image;
+    private TransferType transferType;
     private Map<String, String> data;
 }

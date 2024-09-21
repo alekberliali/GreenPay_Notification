@@ -1,4 +1,4 @@
-package com.greentechpay.notificationservice.entity;
+package com.greentechpay.notificationservice.model.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

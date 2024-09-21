@@ -3,30 +3,31 @@ package com.greentechpay.notificationservice.service;
 import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.MulticastMessage;
 import com.google.firebase.messaging.Notification;
-import com.greentechpay.notificationservice.dto.NotificationMessageToAll;
+import com.greentechpay.notificationservice.model.dto.NotificationMessageToAll;
 import com.greentechpay.notificationservice.kafka.dto.PaymentNotificationMessageEvent;
+import com.greentechpay.notificationservice.kafka.dto.SimaNotificationMessageEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.time.format.DateTimeFormatter;
 
 @Service
 @RequiredArgsConstructor
 public class MessageService {
     private final TokenService tokenService;
-    protected Message generateSimaMessage(PaymentNotificationMessageEvent paymentNotificationMessageEvent) {
+
+    protected Message generateSimaMessage(SimaNotificationMessageEvent simaNotificationMessageEvent) {
         Notification notification = Notification.builder()
-                .setTitle(paymentNotificationMessageEvent.getTitle())
-                .setBody(paymentNotificationMessageEvent.getBody().getDescription())
+                .setTitle(simaNotificationMessageEvent.getTitle())
+                .setBody(simaNotificationMessageEvent.getDescription())
                 .build();
         return Message.builder()
-                .setToken(tokenService.getDeviceTokenByUserId(paymentNotificationMessageEvent.getUserId()))
+                .setToken(tokenService.getDeviceTokenByUserId(simaNotificationMessageEvent.getUserId()))
                 .setNotification(notification)
                 .build();
     }
-    //TODO - or +
+
     protected Message generateSenderMessage(PaymentNotificationMessageEvent paymentNotificationMessageEvent) {
         var body = paymentNotificationMessageEvent.getBody();
         Notification notification = Notification.builder()
@@ -40,6 +41,7 @@ public class MessageService {
                 .setNotification(notification)
                 .build();
     }
+
     protected Message generateReceiverMessage(PaymentNotificationMessageEvent paymentNotificationMessageEvent) {
         var requestBody = paymentNotificationMessageEvent.getReceiverBody();
         Notification receiverNotification = Notification.builder()
@@ -52,6 +54,7 @@ public class MessageService {
                 .setNotification(receiverNotification)
                 .build();
     }
+
     protected MulticastMessage generateMultiMessage(NotificationMessageToAll notificationMessageToAll) {
         List<String> userIdList = new ArrayList<>(notificationMessageToAll.getUserIdList());
         var tokens = tokenService.getDeviceTokenListByUserIdList(userIdList);
