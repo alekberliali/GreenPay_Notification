@@ -1,7 +1,7 @@
 package com.greentechpay.notificationservice.service;
 
 import com.greentechpay.notificationservice.model.dto.NotificationMessageToAll;
-import com.greentechpay.notificationservice.model.dto.NotificationType;
+import com.greentechpay.notificationservice.model.enumarated.NotificationType;
 import com.greentechpay.notificationservice.model.dto.request.PageRequestDto;
 import com.greentechpay.notificationservice.model.dto.response.NotificationDto;
 import com.greentechpay.notificationservice.model.dto.response.PageResponse;
@@ -13,8 +13,11 @@ import com.greentechpay.notificationservice.jwt.JwtUtil;
 import com.greentechpay.notificationservice.kafka.dto.PaymentNotificationMessageEvent;
 import com.greentechpay.notificationservice.mapper.CustomNotificationMapper;
 import com.greentechpay.notificationservice.mapper.NotificationMapper;
+import com.greentechpay.notificationservice.model.enumarated.TransferType;
 import com.greentechpay.notificationservice.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +36,8 @@ public class NotificationService {
     private final CustomNotificationMapper customNotificationMapper;
     private final JwtUtil jwtUtil;
 
+    private static final Logger logger = LoggerFactory.getLogger(NotificationService.class);
+
     private String getUserIdFromToken(String token) {
         String jwt = token.substring(7);
         return jwtUtil.extractUserId(jwt);
@@ -42,20 +47,39 @@ public class NotificationService {
         return notificationRepository.existsByUserIdAndId(userId, id);
     }
 
-    public void create(PaymentNotificationMessageEvent paymentNotificationMessageEvent) {
-        var notification = customNotificationMapper.convertFromPaymentNotificationMessageEvent(paymentNotificationMessageEvent);
+    public void create(PaymentNotificationMessageEvent event) {
+        if (event.getTransferType().equals(TransferType.IbanToUId) ||
+                event.getTransferType().equals(TransferType.IbanToIban) ||
+                event.getTransferType().equals(TransferType.IbanToPhoneNumber) ||
+                event.getTransferType().equals(TransferType.UIdToIban) ||
+                event.getTransferType().equals(TransferType.UIdToUId) ||
+                event.getTransferType().equals(TransferType.Qr) ||
+                event.getTransferType().equals(TransferType.Nfc)) {
+
+            createSenderNotification(event);
+            createReceiverNotification(event);
+        } else if (event.getTransferType().equals(TransferType.CardToBalance)) {
+            createReceiverNotification(event);
+        } else if (event.getTransferType().equals(TransferType.BalanceToCard) ||
+                event.getTransferType().equals(TransferType.BillingPayment)) {
+            createSenderNotification(event);
+        } else {
+            logger.error("Unsupported transfer type: {}", event.getTransferType());
+        }
+    }
+
+    private void createSenderNotification(PaymentNotificationMessageEvent event) {
+        var notification = customNotificationMapper.convertFromPaymentNotificationMessageEventForSender(event);
         notification.setSendDate(LocalDateTime.now());
         notification.setReadStatus(false);
-        notification.setNotificationType(NotificationType.NOTIFICATION);
         notificationRepository.save(notification);
-        if (paymentNotificationMessageEvent.getReceiverUserId() != null) {
-            var receiverNotification = customNotificationMapper
-                    .convertFromPaymentNotificationMessageEventForReceiver(paymentNotificationMessageEvent);
-            receiverNotification.setSendDate(LocalDateTime.now());
-            receiverNotification.setReadStatus(false);
-            receiverNotification.setNotificationType(NotificationType.NOTIFICATION);
-            notificationRepository.save(receiverNotification);
-        }
+    }
+
+    private void createReceiverNotification(PaymentNotificationMessageEvent event) {
+        var notification = customNotificationMapper.convertFromPaymentNotificationMessageEventForReceiver(event);
+        notification.setSendDate(LocalDateTime.now());
+        notification.setReadStatus(false);
+        notificationRepository.save(notification);
     }
 
     public void createAll(NotificationMessageToAll notificationMessageToAll) {
@@ -66,7 +90,6 @@ public class NotificationService {
         }
         notificationRepository.saveAll(notificationList);
     }
-
 
     public PageResponse<Map<LocalDate, List<NotificationDto>>>
     getAllByUserId(String token, NotificationType notificationType, PageRequestDto pageRequestDto) {

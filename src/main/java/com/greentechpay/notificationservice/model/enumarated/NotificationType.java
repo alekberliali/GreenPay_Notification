@@ -1,4 +1,4 @@
-package com.greentechpay.notificationservice.model.dto;
+package com.greentechpay.notificationservice.model.enumarated;
 
 public enum NotificationType {
     NOTIFICATION,

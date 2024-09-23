@@ -1,5 +1,6 @@
 package com.greentechpay.notificationservice.model.dto;
 
+import com.greentechpay.notificationservice.model.enumarated.NotificationType;
 import lombok.Data;
 
 import java.util.List;
