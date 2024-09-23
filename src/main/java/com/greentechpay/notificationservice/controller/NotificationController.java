@@ -1,6 +1,6 @@
 package com.greentechpay.notificationservice.controller;
 import com.greentechpay.notificationservice.model.dto.NotificationMessageToAll;
-import com.greentechpay.notificationservice.model.dto.NotificationType;
+import com.greentechpay.notificationservice.model.enumarated.NotificationType;
 import com.greentechpay.notificationservice.model.dto.request.PageRequestDto;
 import com.greentechpay.notificationservice.model.dto.response.NotificationDto;
 import com.greentechpay.notificationservice.model.dto.response.PageResponse;

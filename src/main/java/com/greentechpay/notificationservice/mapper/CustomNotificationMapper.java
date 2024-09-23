@@ -2,6 +2,7 @@ package com.greentechpay.notificationservice.mapper;
 
 import com.greentechpay.notificationservice.model.dto.NotificationMessageToAll;
 import com.greentechpay.notificationservice.kafka.dto.PaymentNotificationMessageEvent;
+import com.greentechpay.notificationservice.model.enumarated.NotificationType;
 import com.greentechpay.notificationservice.model.entity.Notification;
 import org.springframework.stereotype.Component;
 
@@ -10,16 +11,13 @@ import java.util.List;
 
 @Component
 public class CustomNotificationMapper {
-    public Notification convertFromPaymentNotificationMessageEvent(PaymentNotificationMessageEvent paymentNotificationMessageEvent) {
+    public Notification convertFromPaymentNotificationMessageEventForSender(PaymentNotificationMessageEvent paymentNotificationMessageEvent) {
         var body = paymentNotificationMessageEvent.getBody();
         Notification notification = new Notification();
         notification.setTitle(paymentNotificationMessageEvent.getTitle());
         notification.setUserId(paymentNotificationMessageEvent.getUserId());
-        if (paymentNotificationMessageEvent.getTitle().equals("SIMA")) {
-            notification.setBody(body.getDescription());
-        } else {
-            notification.setBody("-" + body.getAmount() + " " + body.getCurrency() + ", " + body.getDate());
-        }
+        notification.setBody("-" + body.getAmount() + " " + body.getCurrency() + ", " + body.getDate());
+        notification.setNotificationType(NotificationType.NOTIFICATION);
         return notification;
     }
 
@@ -30,6 +28,7 @@ public class CustomNotificationMapper {
         notification.setTitle(paymentNotificationMessageEvent.getTitle());
         notification.setBody("+" + requestBody.getAmount() + " " + requestBody.getCurrency() +
                 ", " + requestBody.getDate());
+        notification.setNotificationType(NotificationType.NOTIFICATION);
         return notification;
     }
 
