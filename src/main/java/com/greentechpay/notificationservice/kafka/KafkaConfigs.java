@@ -14,12 +14,15 @@ public class KafkaConfigs {
 
     private static final String PACKAGE_PATH = "com.greentechpay.notificationservice.kafka.dto";
 
-    public static final String NOTIFICATION_EVENT_PATH = PACKAGE_PATH + ".PaymentNotificationMessageEvent";
+    public static final String PAYMENT_NOTIFICATION_EVENT_PATH = PACKAGE_PATH + ".PaymentNotificationMessageEvent";
+    public static final String SIMA_NOTIFICATION_EVENT_PATH = PACKAGE_PATH + ".SimaNotificationMessageEvent";
     public static final String LOGIN_DEVICE_TOKEN_EVENT_PATH = PACKAGE_PATH + ".LoginDeviceTokenEvent";
 
-    public static final String NOTIFICATION_TOPIC = "Notification-Message";
+    public static final String NOTIFICATION_PAYMENT_TOPIC = "Notification-Message-Payment";
+    public static final String NOTIFICATION_SIMA_TOPIC = "Notification-Message-Sima";
     public static final String LOGIN_DEVICE_TOPIC = "login-device-token";
 
-    public static final String NOTIFICATION_CONTAINER_FACTORY = "kafkaListenerContainerFactoryPaymentNotificationMessage";
+    public static final String PAYMENT_NOTIFICATION_CONTAINER_FACTORY = "kafkaListenerContainerFactoryPaymentNotificationMessage";
+    public static final String SIMA_NOTIFICATION_CONTAINER_FACTORY = "kafkaListenerContainerFactorySimaNotificationMessage";
     public static final String LOGIN_DEVICE_CONTAINER_FACTORY = "kafkaListenerContainerFactoryLoginDeviceToken";
 }

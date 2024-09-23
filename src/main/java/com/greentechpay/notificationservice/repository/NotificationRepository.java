@@ -1,7 +1,7 @@
 package com.greentechpay.notificationservice.repository;
 
-import com.greentechpay.notificationservice.dto.NotificationType;
-import com.greentechpay.notificationservice.entity.Notification;
+import com.greentechpay.notificationservice.model.dto.NotificationType;
+import com.greentechpay.notificationservice.model.entity.Notification;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;

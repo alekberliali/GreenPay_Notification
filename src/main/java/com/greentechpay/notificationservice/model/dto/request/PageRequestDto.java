@@ -1,4 +1,4 @@
-package com.greentechpay.notificationservice.dto.request;
+package com.greentechpay.notificationservice.model.dto.request;
 
 import jakarta.validation.constraints.NotNull;
 

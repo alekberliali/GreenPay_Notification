@@ -1,7 +1,7 @@
 package com.greentechpay.notificationservice.service;
 
 import com.greentechpay.notificationservice.kafka.dto.LoginDeviceTokenEvent;
-import com.greentechpay.notificationservice.entity.UserDeviceToken;
+import com.greentechpay.notificationservice.model.entity.UserDeviceToken;
 import com.greentechpay.notificationservice.mapper.DeviceTokenMapper;
 import com.greentechpay.notificationservice.repository.UserDeviceTokenRepository;
 import lombok.RequiredArgsConstructor;
