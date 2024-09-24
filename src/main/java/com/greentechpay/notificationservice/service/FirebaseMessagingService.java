@@ -4,6 +4,7 @@ import com.google.firebase.messaging.*;
 import com.greentechpay.notificationservice.model.dto.NotificationMessageToAll;
 import com.greentechpay.notificationservice.kafka.dto.PaymentNotificationMessageEvent;
 import com.greentechpay.notificationservice.kafka.dto.SimaNotificationMessageEvent;
+import com.greentechpay.notificationservice.model.enumarated.Status;
 import com.greentechpay.notificationservice.model.enumarated.TransferType;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -66,10 +67,11 @@ public class FirebaseMessagingService {
         if (existsByUserId && existsByReceiverUserId) {
             sendToSenderNotification(event);
             sendToReceiverNotification(event);
-        } else if (existsByUserId && (event.getTransferType().equals(TransferType.BalanceToCard) ||
+        } else if (Boolean.TRUE.equals(existsByUserId) && (event.getTransferType().equals(TransferType.BalanceToCard) ||
                 event.getTransferType().equals(TransferType.BillingPayment))) {
             sendToSenderNotification(event);
-        } else if (existsByReceiverUserId && (event.getTransferType().equals(TransferType.CardToBalance))) {
+        } else if (Boolean.TRUE.equals(existsByReceiverUserId) &&
+                (event.getTransferType().equals(TransferType.CardToBalance))) {
             sendToReceiverNotification(event);
         } else {
             logger.error("Notification message not sent");
@@ -99,24 +101,35 @@ public class FirebaseMessagingService {
         }
     }
 
-
     private void sendToSenderNotification(PaymentNotificationMessageEvent event) {
         var senderMessage = messageService.generateSenderMessage(event);
-        notificationService.create(event);
-        try {
-            firebaseMessaging.send(senderMessage);
-        } catch (FirebaseMessagingException exception) {
-            logger.error("Failed to send sender notification: {}", exception.getMessage());
+        if (event.getBody().getStatus() != null &&
+                ((event.getBody().getStatus() == Status.Success) || (event.getBody().getStatus() == Status.Fail))) {
+            notificationService.create(event);
+            try {
+                firebaseMessaging.send(senderMessage);
+                logger.info("Notification sent to sender: {}", senderMessage);
+            } catch (FirebaseMessagingException exception) {
+                logger.error("Failed to send sender notification: {}", exception.getMessage());
+            }
+        } else {
+            logger.error("Sender notification unsupported status type");
         }
     }
 
     private void sendToReceiverNotification(PaymentNotificationMessageEvent event) {
         var receiverMessage = messageService.generateReceiverMessage(event);
-        notificationService.create(event);
-        try {
-            firebaseMessaging.send(receiverMessage);
-        } catch (FirebaseMessagingException exception) {
-            logger.error("Failed to send receiver notification: {}", exception.getMessage());
+        if (event.getReceiverBody().getStatus() != null &&
+                ((event.getReceiverBody().getStatus() == Status.Success) || (event.getReceiverBody().getStatus() == Status.Fail))) {
+            notificationService.create(event);
+            try {
+                firebaseMessaging.send(receiverMessage);
+                logger.info("Notification sent to receiver: {}", receiverMessage);
+            } catch (FirebaseMessagingException exception) {
+                logger.error("Failed to send receiver notification: {}", exception.getMessage());
+            }
+        } else {
+            logger.error("Receiver notification unsupported status type");
         }
     }
 

@@ -48,7 +48,9 @@ public class NotificationService {
     }
 
     public void create(PaymentNotificationMessageEvent event) {
-        if (event.getTransferType().equals(TransferType.IbanToUId) ||
+        if (event.getTransferType() == null) {
+            createUpdateNotification(event);
+        } else if (event.getTransferType().equals(TransferType.IbanToUId) ||
                 event.getTransferType().equals(TransferType.IbanToIban) ||
                 event.getTransferType().equals(TransferType.IbanToPhoneNumber) ||
                 event.getTransferType().equals(TransferType.UIdToIban) ||
@@ -66,6 +68,17 @@ public class NotificationService {
         } else {
             logger.error("Unsupported transfer type: {}", event.getTransferType());
         }
+    }
+
+    private void createUpdateNotification(PaymentNotificationMessageEvent event) {
+        Notification notification = new Notification();
+        notification.setTitle(event.getTitle());
+        notification.setUserId(event.getUserId());
+        notification.setSendDate(LocalDateTime.now());
+        notification.setReadStatus(Boolean.FALSE);
+        notification.setBody(event.getBody().getDescription());
+        notification.setNotificationType(NotificationType.NOTIFICATION);
+        notificationRepository.save(notification);
     }
 
     private void createSenderNotification(PaymentNotificationMessageEvent event) {
