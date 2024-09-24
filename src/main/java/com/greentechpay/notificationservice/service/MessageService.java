@@ -33,7 +33,7 @@ public class MessageService {
         Notification notification = Notification.builder()
                 .setTitle(paymentNotificationMessageEvent.getTitle())
                 .setBody("-" + body.getAmount() + " " + body.getCurrency() +
-                        ", "+ body.getDate())
+                        ", " + body.getDate())
                 .setImage(paymentNotificationMessageEvent.getImage())
                 .build();
         return Message.builder()
@@ -46,8 +46,7 @@ public class MessageService {
         var requestBody = paymentNotificationMessageEvent.getReceiverBody();
         Notification receiverNotification = Notification.builder()
                 .setTitle(paymentNotificationMessageEvent.getTitle())
-                .setBody("+" + requestBody.getAmount() + " " + requestBody.getCurrency() +
-                        ", "+ requestBody.getDate())
+                .setBody("+" + requestBody.getAmount() + " " + requestBody.getCurrency() + ", " + requestBody.getDate())
                 .build();
         return Message.builder()
                 .setToken(tokenService.getDeviceTokenByUserId(paymentNotificationMessageEvent.getReceiverUserId()))
