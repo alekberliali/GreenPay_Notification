@@ -1,6 +1,8 @@
 package com.greentechpay.notificationservice.service;
 
+import com.greentechpay.notificationservice.exception.UserNotFoundException;
 import com.greentechpay.notificationservice.kafka.dto.LoginDeviceTokenEvent;
+import com.greentechpay.notificationservice.model.dto.request.AppUser;
 import com.greentechpay.notificationservice.model.entity.UserDeviceToken;
 import com.greentechpay.notificationservice.mapper.DeviceTokenMapper;
 import com.greentechpay.notificationservice.repository.UserDeviceTokenRepository;
@@ -34,7 +36,7 @@ public class TokenService {
     }
 
     protected Boolean existsByUserId(String userId) {
-       return userDeviceTokenRepository.existsByUserId(userId);
+        return userDeviceTokenRepository.existsByUserId(userId);
     }
 
     protected String getDeviceTokenByUserId(String userId) {
@@ -43,5 +45,26 @@ public class TokenService {
 
     protected List<String> getDeviceTokenListByUserIdList(List<String> userIdList) {
         return userDeviceTokenRepository.findTokensByUserIds(userIdList);
+    }
+
+    protected Boolean isTokenValid(String userId) {
+        UserDeviceToken userDeviceToken = userDeviceTokenRepository.getUserDeviceTokenByUserId(userId);
+        if (userDeviceToken.getDeviceToken() != null) {
+            return Boolean.TRUE;
+        } else {
+            return Boolean.FALSE;
+        }
+    }
+
+    public void logout(AppUser user) {
+        String userId = user.getUserId();
+        if (Boolean.TRUE.equals(existsByUserId(userId))) {
+            UserDeviceToken userDeviceToken = userDeviceTokenRepository.getUserDeviceTokenByUserId(userId);
+            userDeviceToken.setDeviceToken(null);
+            userDeviceToken.setUpdatedAt(LocalDateTime.now());
+            userDeviceTokenRepository.save(userDeviceToken);
+        } else {
+            throw new UserNotFoundException("User could not find by id: " + userId);
+        }
     }
 }
