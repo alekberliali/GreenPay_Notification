@@ -7,6 +7,6 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @AllArgsConstructor
-public class UserIsNotFoundException extends RuntimeException{
+public class UserNotFoundException extends RuntimeException{
     private final String message;
 }

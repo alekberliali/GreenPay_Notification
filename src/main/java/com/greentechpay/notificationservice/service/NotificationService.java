@@ -1,6 +1,7 @@
 package com.greentechpay.notificationservice.service;
 
 import com.greentechpay.notificationservice.model.dto.NotificationMessageToAll;
+import com.greentechpay.notificationservice.model.enumarated.NotificationParty;
 import com.greentechpay.notificationservice.model.enumarated.NotificationType;
 import com.greentechpay.notificationservice.model.dto.request.PageRequestDto;
 import com.greentechpay.notificationservice.model.dto.response.NotificationDto;
@@ -8,7 +9,7 @@ import com.greentechpay.notificationservice.model.dto.response.PageResponse;
 import com.greentechpay.notificationservice.model.dto.response.ResponseDto;
 import com.greentechpay.notificationservice.model.entity.Notification;
 import com.greentechpay.notificationservice.exception.NotificationIsNotFound;
-import com.greentechpay.notificationservice.exception.UserIsNotFoundException;
+import com.greentechpay.notificationservice.exception.UserNotFoundException;
 import com.greentechpay.notificationservice.jwt.JwtUtil;
 import com.greentechpay.notificationservice.kafka.dto.PaymentNotificationMessageEvent;
 import com.greentechpay.notificationservice.mapper.CustomNotificationMapper;
@@ -47,39 +48,14 @@ public class NotificationService {
         return notificationRepository.existsByUserIdAndId(userId, id);
     }
 
-    public void create(PaymentNotificationMessageEvent event) {
-        if (event.getTransferType() == null) {
-            createUpdateNotification(event);
-        } else if (event.getTransferType().equals(TransferType.IbanToUId) ||
-                event.getTransferType().equals(TransferType.IbanToIban) ||
-                event.getTransferType().equals(TransferType.IbanToPhoneNumber) ||
-                event.getTransferType().equals(TransferType.UIdToIban) ||
-                event.getTransferType().equals(TransferType.UIdToUId) ||
-                event.getTransferType().equals(TransferType.Qr) ||
-                event.getTransferType().equals(TransferType.Nfc)) {
-
+    public void create(PaymentNotificationMessageEvent event, NotificationParty party) {
+        if (party.equals(NotificationParty.SENDER)) {
             createSenderNotification(event);
+        } else if (party.equals(NotificationParty.RECEIVER)) {
             createReceiverNotification(event);
-        } else if (event.getTransferType().equals(TransferType.CardToBalance)) {
-            createReceiverNotification(event);
-        } else if (event.getTransferType().equals(TransferType.BalanceToCard) ||
-                event.getTransferType().equals(TransferType.BillingPayment)) {
-            createSenderNotification(event);
-        } else {
-            logger.error("Unsupported transfer type: {}", event.getTransferType());
         }
     }
 
-    private void createUpdateNotification(PaymentNotificationMessageEvent event) {
-        Notification notification = new Notification();
-        notification.setTitle(event.getTitle());
-        notification.setUserId(event.getUserId());
-        notification.setSendDate(LocalDateTime.now());
-        notification.setReadStatus(Boolean.FALSE);
-        notification.setBody(event.getBody().getDescription());
-        notification.setNotificationType(NotificationType.NOTIFICATION);
-        notificationRepository.save(notification);
-    }
 
     private void createSenderNotification(PaymentNotificationMessageEvent event) {
         var notification = customNotificationMapper.convertFromPaymentNotificationMessageEventForSender(event);
@@ -111,7 +87,7 @@ public class NotificationService {
 
         var pageRequest = PageRequest.of(pageRequestDto.page(), pageRequestDto.size());
         var result = notificationRepository.findAllByUserId(pageRequest, notificationType, userId)
-                .orElseThrow(() -> new UserIsNotFoundException(USER_IS_NOT_FOUND + userId));
+                .orElseThrow(() -> new UserNotFoundException(USER_IS_NOT_FOUND + userId));
 
         Map<LocalDate, List<NotificationDto>> notifcationMap = new HashMap<>();
         for (Notification dto : result) {
