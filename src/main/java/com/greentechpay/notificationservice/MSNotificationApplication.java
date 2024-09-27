@@ -7,12 +7,14 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.ClassPathResource;
 
 import java.io.IOException;
 
 @SpringBootApplication
+@EnableFeignClients(basePackages = "com.greentechpay.notificationservice.client")
 public class MSNotificationApplication {
     @Value("${spring.cloud.gcp.credentials.location}")
     private String firebaseJson;

@@ -1,4 +1,5 @@
 package com.greentechpay.notificationservice.controller;
+
 import com.greentechpay.notificationservice.model.dto.NotificationMessageToAll;
 import com.greentechpay.notificationservice.model.enumarated.NotificationType;
 import com.greentechpay.notificationservice.model.dto.request.PageRequestDto;
@@ -31,9 +32,15 @@ public class NotificationController {
     private final NotificationService notificationService;
 
     @PostMapping("/send-all")
-    public ResponseEntity<Integer> sendAll(@RequestBody NotificationMessageToAll notificationMessageToAll)
+    public ResponseEntity<Integer> sendAll(@RequestHeader(value = AGENT_NAME) String agentName,
+                                           @RequestHeader(value = AGENT_PASSWORD) String agentPassword,
+                                           @RequestHeader(value = AGENT_ID) String agentId,
+                                           @RequestHeader(value = ACCESS_TOKEN) String accessToken,
+                                           @RequestHeader(value = AUTHORIZATION) String authorization,
+                                           @RequestBody NotificationMessageToAll notificationMessageToAll)
             throws ExecutionException, InterruptedException {
-        return ResponseEntity.ok(firebaseMessagingService.sendNotificationToManyUser(notificationMessageToAll));
+        return ResponseEntity.ok(firebaseMessagingService.sendNotificationToManyUser(agentName, agentPassword, agentId,
+                accessToken, authorization, notificationMessageToAll));
     }
 
     @PostMapping("/send")
