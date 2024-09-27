@@ -177,16 +177,16 @@ public class FirebaseMessagingService {
     public int sendNotificationToManyUser(String agentName, String agentPassword, String agentId, String accessToken,
                                           String authorization, NotificationMessageToAll notificationMessageToAll)
             throws ExecutionException, InterruptedException {
-
-        var hasPermission = authService.hasPermission(agentName, agentPassword, agentId, accessToken, authorization);
+        var message = messageService.generateMultiMessage(notificationMessageToAll);
+        var result = firebaseMessaging.sendEachForMulticastAsync(message).get().getSuccessCount();
+        notificationService.createAll(notificationMessageToAll);
+        return result;
+       /* var hasPermission = authService.hasPermission(agentName, agentPassword, agentId, accessToken, authorization);
         if (Boolean.TRUE.equals(hasPermission)) {
 
-            var message = messageService.generateMultiMessage(notificationMessageToAll);
-            var result = firebaseMessaging.sendEachForMulticastAsync(message).get().getSuccessCount();
-            notificationService.createAll(notificationMessageToAll);
-            return result;
+
         } else {
             throw new ForbiddenException("You do not have authorization for this operation.");
-        }
+        }*/
     }
 }
