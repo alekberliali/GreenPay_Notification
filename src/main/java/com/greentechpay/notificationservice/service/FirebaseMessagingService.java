@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 import java.util.concurrent.ExecutionException;
 
 import static com.greentechpay.notificationservice.kafka.KafkaConfigs.*;
-import static com.greentechpay.notificationservice.utils.ResponseMessage.*;
 
 @Service
 @RequiredArgsConstructor
@@ -58,26 +57,27 @@ public class FirebaseMessagingService {
         }
     }
 
-    private String sendSimaNotification(Message message) {
+    private void sendSimaNotification(Message message) {
         try {
             firebaseMessaging.send(message);
-            return SUCCESS;
         } catch (FirebaseMessagingException exception) {
             logger.error("Sima notification: Failed to send notification: {}", exception.getMessage());
-            return ERROR;
         }
     }
 
     @KafkaListener(topics = NOTIFICATION_SIMA_TOPIC, containerFactory = SIMA_NOTIFICATION_CONTAINER_FACTORY)
-    public String sendSimaNotificationEvent(SimaNotificationMessageEvent event) {
+    public void sendSimaNotificationEvent(SimaNotificationMessageEvent event) {
 
         Boolean existsByUserId = tokenService.existsByUserId(event.getUserId());
 
         if (Boolean.FALSE.equals(existsByUserId)) {
             logger.error("Sima notification: This user id could not find: {}", event.getUserId());
-            return null;
+
+        } else if (!tokenService.isTokenValid(event.getUserId())) {
+            logger.error("Sima notification: token is null");
+
         } else {
-            return sendSimaNotification(messageService.generateSimaMessage(event));
+            sendSimaNotification(messageService.generateSimaMessage(event));
         }
     }
 
@@ -109,6 +109,7 @@ public class FirebaseMessagingService {
     }
 
     private void balanceToBalanceNotification(PaymentNotificationMessageEvent event) {
+
         if (event.getTransferType() == TransferType.IbanToPhoneNumber) {
             if (event.getBody().getStatus() == Status.Pending) {
                 sendToPendingNotification(event);
@@ -125,68 +126,69 @@ public class FirebaseMessagingService {
 
     private void sendToPendingNotification(PaymentNotificationMessageEvent event) {
         var senderMessage = messageService.generatePendingMessage(event);
-        if (event.getBody().getStatus() != null && (event.getBody().getStatus() == Status.Pending)) {
+        if ((event.getBody().getStatus() != null) &&
+                (event.getBody().getStatus() == Status.Pending) && tokenService.isTokenValid(event.getUserId())) {
             try {
                 firebaseMessaging.send(senderMessage);
                 logger.info("Pending notification sent to sender: {}", senderMessage);
+                notificationService.create(event, NotificationParty.SENDER);
             } catch (FirebaseMessagingException exception) {
                 logger.error("Failed to send sender pending notification: {}", exception.getMessage());
             }
         } else {
             logger.error("Pending notification unsupported status type");
         }
-        notificationService.create(event, NotificationParty.SENDER);
     }
 
     private void sendToSenderPaymentNotification(PaymentNotificationMessageEvent event) {
         var senderMessage = messageService.generateSenderMessage(event);
-        if (event.getBody().getStatus() != null &&
+        if (event.getBody().getStatus() != null && tokenService.isTokenValid(event.getUserId()) &&
                 ((event.getBody().getStatus() == Status.Success) ||
                         (event.getBody().getStatus() == Status.Fail) ||
                         (event.getBody().getStatus() == Status.TransactionSuccessfully))) {
             try {
                 firebaseMessaging.send(senderMessage);
                 logger.info("Notification sent to sender: {}", senderMessage);
-
+                notificationService.create(event, NotificationParty.SENDER);
             } catch (FirebaseMessagingException exception) {
                 logger.error("Failed to send sender notification: {}", exception.getMessage());
             }
         } else {
             logger.error("Sender notification unsupported status type");
         }
-        notificationService.create(event, NotificationParty.SENDER);
     }
 
     private void sendToReceiverPaymentNotification(PaymentNotificationMessageEvent event) {
         var receiverMessage = messageService.generateReceiverMessage(event);
-        if (event.getReceiverBody().getStatus() != null &&
+        if (event.getReceiverBody().getStatus() != null && tokenService.isTokenValid(event.getReceiverUserId()) &&
                 ((event.getReceiverBody().getStatus() == Status.Success) ||
                         (event.getReceiverBody().getStatus() == Status.Fail))) {
             try {
                 firebaseMessaging.send(receiverMessage);
                 logger.info("Notification sent to receiver: {}", receiverMessage);
+                notificationService.create(event, NotificationParty.RECEIVER);
             } catch (FirebaseMessagingException exception) {
                 logger.error("Failed to send receiver notification: {}", exception.getMessage());
             }
         } else {
             logger.error("Receiver notification unsupported status type");
         }
-        notificationService.create(event, NotificationParty.RECEIVER);
     }
 
+    //TODO exist by user id  and is valid token must be check
     public int sendNotificationToManyUser(String agentName, String agentPassword, String agentId, String accessToken,
                                           String authorization, NotificationMessageToAll notificationMessageToAll)
             throws ExecutionException, InterruptedException {
-        var message = messageService.generateMultiMessage(notificationMessageToAll);
-        var result = firebaseMessaging.sendEachForMulticastAsync(message).get().getSuccessCount();
-        notificationService.createAll(notificationMessageToAll);
-        return result;
-       /* var hasPermission = authService.hasPermission(agentName, agentPassword, agentId, accessToken, authorization);
+
+        var hasPermission = authService.hasPermission(agentName, agentPassword, agentId, accessToken, authorization);
+
         if (Boolean.TRUE.equals(hasPermission)) {
-
-
+            var message = messageService.generateMultiMessage(notificationMessageToAll);
+            var result = firebaseMessaging.sendEachForMulticastAsync(message).get().getSuccessCount();
+            notificationService.createAll(notificationMessageToAll);
+            return result;
         } else {
             throw new ForbiddenException("You do not have authorization for this operation.");
-        }*/
+        }
     }
 }

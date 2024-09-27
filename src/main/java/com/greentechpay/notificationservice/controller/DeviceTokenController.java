@@ -1,14 +1,11 @@
 package com.greentechpay.notificationservice.controller;
 
 import com.greentechpay.notificationservice.kafka.dto.LoginDeviceTokenEvent;
+import com.greentechpay.notificationservice.model.dto.request.AppUser;
 import com.greentechpay.notificationservice.service.TokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -21,5 +18,11 @@ public class DeviceTokenController {
     @ResponseStatus(HttpStatus.OK)
     public void create(@RequestBody LoginDeviceTokenEvent loginDeviceTokenEvent) {
         tokenService.create(loginDeviceTokenEvent);
+    }
+
+    @PutMapping("/logout")
+    @ResponseStatus(HttpStatus.OK)
+    public void logout(@RequestBody AppUser user) {
+        tokenService.logout(user);
     }
 }
