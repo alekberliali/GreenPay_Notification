@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 
 import static com.greentechpay.notificationservice.utils.HeaderKey.*;
 
+//TODO move url to app secrets
 @FeignClient(value = "auth", url = "http://46.101.99.4:5000/api")
 public interface AuthClient {
 

@@ -54,7 +54,7 @@ public class NotificationController {
     }
 
     @PostMapping("/page")
-    public ResponseEntity<PageResponse<Map<LocalDate, List<NotificationDto>>>>
+    public ResponseEntity<PageResponse<List<NotificationDto>>>
     getAllWithPageByUserId(@RequestHeader(AUTHORIZATION) String token,
                            @RequestParam(NOTIFICATION_TYPE) NotificationType notificationType,
                            @Valid @RequestBody PageRequestDto pageRequestDto) {

@@ -13,6 +13,7 @@ import java.nio.charset.StandardCharsets;
 @Component
 public class JwtUtil {
 
+    //TODO move secret  key to app secrets
     private static final SecretKey SECRET_KEY = Keys.hmacShaKeyFor("mysecuritykeymysecuritykeymysecuritykeymysecuritykey"
             .getBytes(StandardCharsets.UTF_8));
 
