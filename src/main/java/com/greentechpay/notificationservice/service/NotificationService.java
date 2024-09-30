@@ -80,7 +80,7 @@ public class NotificationService {
         notificationRepository.saveAll(notificationList);
     }
 
-    public PageResponse<Map<LocalDate, List<NotificationDto>>>
+    public PageResponse<List<NotificationDto>>
     getAllByUserId(String token, NotificationType notificationType, PageRequestDto pageRequestDto) {
 
         String userId = getUserIdFromToken(token);
@@ -89,20 +89,12 @@ public class NotificationService {
         var result = notificationRepository.findAllByUserId(pageRequest, notificationType, userId)
                 .orElseThrow(() -> new UserNotFoundException(USER_IS_NOT_FOUND + userId));
 
-        Map<LocalDate, List<NotificationDto>> notifcationMap = new HashMap<>();
-        for (Notification dto : result) {
-            LocalDate date = dto.getSendDate().toLocalDate();
-            List<NotificationDto> notificationDtoList = notifcationMap.getOrDefault(date, new ArrayList<>());
-            notificationDtoList.add(notificationMapper.entityToDto(dto));
-            notifcationMap.put(date, notificationDtoList);
-        }
-        Map<LocalDate, List<NotificationDto>> sortedMap = new TreeMap<>(Collections.reverseOrder());
-        sortedMap.putAll(notifcationMap);
+        List<NotificationDto> notificationDtoList = notificationMapper.entityListToDtoList(result.getContent());
 
-        return PageResponse.<Map<LocalDate, List<NotificationDto>>>builder()
+        return PageResponse.<List<NotificationDto>>builder()
                 .totalPages(result.getTotalPages())
                 .totalElements(result.getTotalElements())
-                .content(sortedMap)
+                .content(notificationDtoList)
                 .build();
     }
 
