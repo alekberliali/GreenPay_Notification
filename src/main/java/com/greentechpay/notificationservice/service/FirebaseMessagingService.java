@@ -126,8 +126,8 @@ public class FirebaseMessagingService {
 
     private void sendToPendingNotification(PaymentNotificationMessageEvent event) {
         var senderMessage = messageService.generatePendingMessage(event);
-        if ((event.getBody().getStatus() != null) &&
-                (event.getBody().getStatus() == Status.Pending) && tokenService.isTokenValid(event.getUserId())) {
+        if ((event.getBody().getStatus() != null) && (event.getBody().getStatus() == Status.Pending) &&
+                tokenService.isTokenValid(event.getUserId())) {
             try {
                 firebaseMessaging.send(senderMessage);
                 logger.info("Pending notification sent to sender: {}", senderMessage);
