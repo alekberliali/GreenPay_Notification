@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -70,7 +71,8 @@ public class MessageService {
 
     protected MulticastMessage generateMultiMessage(NotificationMessageToAll notificationMessageToAll) {
         List<String> userIdList = new ArrayList<>(notificationMessageToAll.getUserIdList());
-        var tokens = tokenService.getDeviceTokenListByUserIdList(userIdList);
+        var results = tokenService.getDeviceTokenListByUserIdList(userIdList);
+        var tokens = results.stream().filter(Objects::nonNull).toList();
         Notification notification = Notification.builder()
                 .setTitle(notificationMessageToAll.getTitle())
                 .setBody(notificationMessageToAll.getBody())
