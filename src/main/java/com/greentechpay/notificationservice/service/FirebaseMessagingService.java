@@ -6,6 +6,7 @@ import com.greentechpay.notificationservice.model.dto.NotificationMessageToAll;
 import com.greentechpay.notificationservice.kafka.dto.PaymentNotificationMessageEvent;
 import com.greentechpay.notificationservice.kafka.dto.SimaNotificationMessageEvent;
 import com.greentechpay.notificationservice.model.enumarated.NotificationParty;
+import com.greentechpay.notificationservice.model.enumarated.NotificationProcessType;
 import com.greentechpay.notificationservice.model.enumarated.Status;
 import com.greentechpay.notificationservice.model.enumarated.TransferType;
 import lombok.RequiredArgsConstructor;
@@ -30,12 +31,12 @@ public class FirebaseMessagingService {
     private static final Logger logger = LoggerFactory.getLogger(FirebaseMessagingService.class);
 
     private Boolean checkUserId(PaymentNotificationMessageEvent event) {
-        if (event.getUserId() != null) {
-            Boolean isExist = tokenService.existsByUserId(event.getUserId());
+        if (event.getSender().getUserId() != null) {
+            Boolean isExist = tokenService.existsByUserId(event.getSender().getUserId());
             if (Boolean.TRUE.equals(isExist)) {
                 return true;
             } else {
-                logger.error("User with id: {} not found", event.getUserId());
+                logger.error("User with id: {} not found", event.getSender().getUserId());
                 return false;
             }
         } else {
@@ -44,12 +45,12 @@ public class FirebaseMessagingService {
     }
 
     private Boolean checkReceiverUserId(PaymentNotificationMessageEvent event) {
-        if (event.getReceiverUserId() != null) {
-            Boolean isExist = tokenService.existsByUserId(event.getReceiverUserId());
+        if (event.getReceiver().getUserId() != null) {
+            Boolean isExist = tokenService.existsByUserId(event.getReceiver().getUserId());
             if (Boolean.TRUE.equals(isExist)) {
                 return true;
             } else {
-                logger.error("Receiver user with id: {} not found", event.getReceiverUserId());
+                logger.error("Receiver user with id: {} not found", event.getReceiver().getUserId());
                 return false;
             }
         } else {
@@ -73,7 +74,7 @@ public class FirebaseMessagingService {
         if (Boolean.FALSE.equals(existsByUserId)) {
             logger.error("Sima notification: This user id could not find: {}", event.getUserId());
 
-        } else if (!tokenService.isTokenValid(event.getUserId())) {
+        } else if (Boolean.FALSE == tokenService.isTokenValid(event.getUserId())) {
             logger.error("Sima notification: token is null");
 
         } else {
@@ -85,7 +86,7 @@ public class FirebaseMessagingService {
     public void sendPaymentNotificationByToken(PaymentNotificationMessageEvent event) {
 
         logger.info("title: {}, senderUserId: {}, receiverUserId: {}",
-                event.getTitle(), event.getUserId(), event.getReceiverUserId());
+                event.getTitle(), event.getSender().getUserId(), event.getReceiver().getUserId());
 
         var existsByUserId = checkUserId(event);
         var existsByReceiverUserId = checkReceiverUserId(event);
@@ -110,12 +111,13 @@ public class FirebaseMessagingService {
 
     private void balanceToBalanceNotification(PaymentNotificationMessageEvent event) {
 
-        if (event.getTransferType() == TransferType.IbanToPhoneNumber) {
-            if (event.getBody().getStatus() == Status.Pending) {
+        if ((event.getTransferType() == TransferType.IbanToPhoneNumber) &&
+                (event.getNotificationProcessType() == NotificationProcessType.CONTINUES)) {
+            if ((event.getStatus() == Status.Pending)) {
                 sendToPendingNotification(event);
-            } else if (event.getBody().getStatus() == Status.Success) {
+            } else if (event.getStatus() == Status.Success) {
                 sendToReceiverPaymentNotification(event);
-            } else if (event.getBody().getStatus() == Status.Fail) {
+            } else if (event.getStatus() == Status.Fail) {
                 sendToSenderPaymentNotification(event);
             }
         } else {
@@ -126,8 +128,9 @@ public class FirebaseMessagingService {
 
     private void sendToPendingNotification(PaymentNotificationMessageEvent event) {
         var senderMessage = messageService.generatePendingMessage(event);
-        if ((event.getBody().getStatus() != null) && (event.getBody().getStatus() == Status.Pending) &&
-                tokenService.isTokenValid(event.getUserId())) {
+        if ((event.getStatus() != null) &&
+                (event.getStatus() == Status.Pending) &&
+                (Boolean.TRUE == tokenService.isTokenValid(event.getSender().getUserId()))) {
             try {
                 firebaseMessaging.send(senderMessage);
                 logger.info("Pending notification sent to sender: {}", senderMessage);
@@ -142,10 +145,10 @@ public class FirebaseMessagingService {
 
     private void sendToSenderPaymentNotification(PaymentNotificationMessageEvent event) {
         var senderMessage = messageService.generateSenderMessage(event);
-        if (event.getBody().getStatus() != null && tokenService.isTokenValid(event.getUserId()) &&
-                ((event.getBody().getStatus() == Status.Success) ||
-                        (event.getBody().getStatus() == Status.Fail) ||
-                        (event.getBody().getStatus() == Status.TransactionSuccessfully))) {
+        if (event.getStatus() != null && tokenService.isTokenValid(event.getSender().getUserId()) &&
+                ((event.getStatus() == Status.Success) ||
+                        (event.getStatus() == Status.Fail) ||
+                        (event.getStatus() == Status.TransactionSuccessfully))) {
             try {
                 firebaseMessaging.send(senderMessage);
                 logger.info("Notification sent to sender: {}", senderMessage);
@@ -160,9 +163,9 @@ public class FirebaseMessagingService {
 
     private void sendToReceiverPaymentNotification(PaymentNotificationMessageEvent event) {
         var receiverMessage = messageService.generateReceiverMessage(event);
-        if (event.getReceiverBody().getStatus() != null && tokenService.isTokenValid(event.getReceiverUserId()) &&
-                ((event.getReceiverBody().getStatus() == Status.Success) ||
-                        (event.getReceiverBody().getStatus() == Status.Fail))) {
+        if (event.getStatus() != null && tokenService.isTokenValid(event.getReceiver().getUserId()) &&
+                ((event.getStatus() == Status.Success) ||
+                        (event.getStatus() == Status.Fail))) {
             try {
                 firebaseMessaging.send(receiverMessage);
                 logger.info("Notification sent to receiver: {}", receiverMessage);
@@ -175,7 +178,6 @@ public class FirebaseMessagingService {
         }
     }
 
-    //TODO exist by user id  and is valid token must be check
     public int sendNotificationToManyUser(String agentName, String agentPassword, String agentId, String accessToken,
                                           String authorization, NotificationMessageToAll notificationMessageToAll)
             throws ExecutionException, InterruptedException {

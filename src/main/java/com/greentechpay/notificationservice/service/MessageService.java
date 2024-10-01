@@ -30,41 +30,41 @@ public class MessageService {
     }
 
     protected Message generatePendingMessage(PaymentNotificationMessageEvent paymentNotificationMessageEvent) {
-        var body = paymentNotificationMessageEvent.getBody();
+        var body = paymentNotificationMessageEvent.getSender();
         Notification notification = Notification.builder()
                 .setTitle(paymentNotificationMessageEvent.getTitle())
                 .setBody("-" + body.getAmount() + " " + body.getCurrency() + ", " + body.getDate())
                 .setImage(paymentNotificationMessageEvent.getImage())
                 .build();
         return Message.builder()
-                .setToken(tokenService.getDeviceTokenByUserId(paymentNotificationMessageEvent.getUserId()))
+                .setToken(tokenService.getDeviceTokenByUserId(paymentNotificationMessageEvent.getSender().getUserId()))
                 .setNotification(notification)
                 .build();
     }
 
     protected Message generateSenderMessage(PaymentNotificationMessageEvent paymentNotificationMessageEvent) {
-        var body = paymentNotificationMessageEvent.getBody();
+        var body = paymentNotificationMessageEvent.getSender();
         Notification notification = Notification.builder()
                 .setTitle(paymentNotificationMessageEvent.getTitle())
                 .setBody("-" + body.getAmount() + " " + body.getCurrency()
-                        + ", " + body.getDate() + ", " + body.getStatus().name())
+                        + ", " + body.getDate() + ", " + paymentNotificationMessageEvent.getStatus().name())
                 .setImage(paymentNotificationMessageEvent.getImage())
                 .build();
         return Message.builder()
-                .setToken(tokenService.getDeviceTokenByUserId(paymentNotificationMessageEvent.getUserId()))
+                .setToken(tokenService.getDeviceTokenByUserId(paymentNotificationMessageEvent.getSender().getUserId()))
                 .setNotification(notification)
                 .build();
     }
 
     protected Message generateReceiverMessage(PaymentNotificationMessageEvent paymentNotificationMessageEvent) {
-        var requestBody = paymentNotificationMessageEvent.getReceiverBody();
+        var requestBody = paymentNotificationMessageEvent.getReceiver();
         Notification receiverNotification = Notification.builder()
                 .setTitle(paymentNotificationMessageEvent.getTitle())
                 .setBody("+" + requestBody.getAmount() + " " + requestBody.getCurrency()
-                        + ", " + requestBody.getDate() + ", " + requestBody.getStatus())
+                        + ", " + requestBody.getDate() + ", " + paymentNotificationMessageEvent.getStatus())
                 .build();
         return Message.builder()
-                .setToken(tokenService.getDeviceTokenByUserId(paymentNotificationMessageEvent.getReceiverUserId()))
+                .setToken(tokenService.getDeviceTokenByUserId(paymentNotificationMessageEvent.getReceiver().getUserId()))
                 .setNotification(receiverNotification)
                 .build();
     }
