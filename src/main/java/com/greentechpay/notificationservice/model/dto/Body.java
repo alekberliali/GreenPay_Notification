@@ -7,9 +7,9 @@ import java.math.BigDecimal;
 
 @Data
 public class Body {
+    private String userId;
     private BigDecimal amount;
     private String currency;
-    private Status status;
     private String date;
     private String description;
 }

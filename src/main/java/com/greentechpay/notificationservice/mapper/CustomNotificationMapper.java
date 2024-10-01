@@ -12,19 +12,19 @@ import java.util.List;
 @Component
 public class CustomNotificationMapper {
     public Notification convertFromPaymentNotificationMessageEventForSender(PaymentNotificationMessageEvent paymentNotificationMessageEvent) {
-        var body = paymentNotificationMessageEvent.getBody();
+        var body = paymentNotificationMessageEvent.getSender();
         Notification notification = new Notification();
         notification.setTitle(paymentNotificationMessageEvent.getTitle());
-        notification.setUserId(paymentNotificationMessageEvent.getUserId());
+        notification.setUserId(paymentNotificationMessageEvent.getSender().getUserId());
         notification.setBody("-" + body.getAmount() + " " + body.getCurrency() + ", " + body.getDate());
         notification.setNotificationType(NotificationType.NOTIFICATION);
         return notification;
     }
 
     public Notification convertFromPaymentNotificationMessageEventForReceiver(PaymentNotificationMessageEvent paymentNotificationMessageEvent) {
-        var requestBody = paymentNotificationMessageEvent.getReceiverBody();
+        var requestBody = paymentNotificationMessageEvent.getReceiver();
         Notification notification = new Notification();
-        notification.setUserId(paymentNotificationMessageEvent.getReceiverUserId());
+        notification.setUserId(paymentNotificationMessageEvent.getReceiver().getUserId());
         notification.setTitle(paymentNotificationMessageEvent.getTitle());
         notification.setBody("+" + requestBody.getAmount() + " " + requestBody.getCurrency() +
                 ", " + requestBody.getDate());
