@@ -49,11 +49,12 @@ public class TokenService {
 
     protected Boolean isTokenValid(String userId) {
         UserDeviceToken userDeviceToken = userDeviceTokenRepository.getUserDeviceTokenByUserId(userId);
+
         if (userDeviceToken.getDeviceToken() != null) {
             return Boolean.TRUE;
-        } else {
-            return Boolean.FALSE;
         }
+
+        return Boolean.FALSE;
     }
 
     public void logout(AppUser user) {
