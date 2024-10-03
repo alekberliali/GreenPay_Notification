@@ -5,6 +5,7 @@ import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -15,12 +16,17 @@ import java.nio.charset.StandardCharsets;
 public class JwtUtil {
 
     @Value("${app.jwt_secret_key}")
-    private static String JWT_SECRET_KEY;
-    private static final SecretKey SECRET_KEY = Keys.hmacShaKeyFor(JWT_SECRET_KEY.getBytes(StandardCharsets.UTF_8));
+    private String jwtSecretKey;
 
-    private final JwtParser jwtParser = Jwts.parserBuilder()
-            .setSigningKey(SECRET_KEY)
-            .build();
+    private JwtParser jwtParser;
+
+    @PostConstruct
+    public void init() {
+       SecretKey secretKey = Keys.hmacShaKeyFor(jwtSecretKey.getBytes(StandardCharsets.UTF_8));
+        jwtParser = Jwts.parserBuilder()
+                .setSigningKey(secretKey)
+                .build();
+    }
 
     public Claims extractClaims(String token) {
         try {
