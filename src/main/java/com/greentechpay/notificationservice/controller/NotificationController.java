@@ -53,8 +53,16 @@ public class NotificationController {
         return ResponseEntity.ok(notificationService.getById(token, id));
     }
 
-    @PostMapping("/page")
+   /* @PostMapping("/page")
     public ResponseEntity<PageResponse<List<NotificationDto>>>
+    getAllWithPageByUserId(@RequestHeader(AUTHORIZATION) String token,
+                           @RequestParam(NOTIFICATION_TYPE) NotificationType notificationType,
+                           @Valid @RequestBody PageRequestDto pageRequestDto) {
+        return ResponseEntity.ok(notificationService.getAllByUserId(token, notificationType, pageRequestDto));
+    }*/
+
+    @PostMapping("/page")
+    public ResponseEntity<PageResponse<Map<LocalDate, List<NotificationDto>>>>
     getAllWithPageByUserId(@RequestHeader(AUTHORIZATION) String token,
                            @RequestParam(NOTIFICATION_TYPE) NotificationType notificationType,
                            @Valid @RequestBody PageRequestDto pageRequestDto) {
