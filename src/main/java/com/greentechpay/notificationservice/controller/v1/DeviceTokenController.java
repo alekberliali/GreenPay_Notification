@@ -1,4 +1,4 @@
-package com.greentechpay.notificationservice.controller;
+package com.greentechpay.notificationservice.controller.v1;
 
 import com.greentechpay.notificationservice.kafka.dto.LoginDeviceTokenEvent;
 import com.greentechpay.notificationservice.model.dto.request.AppUser;

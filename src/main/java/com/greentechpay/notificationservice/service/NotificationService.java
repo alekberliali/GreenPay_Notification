@@ -80,8 +80,8 @@ public class NotificationService {
         notificationRepository.saveAll(notificationList);
     }
 
-/*    public PageResponse<List<NotificationDto>>
-    getAllByUserId(String token, NotificationType notificationType, PageRequestDto pageRequestDto) {
+    public PageResponse<List<NotificationDto>>
+    getAllListByUserId(String token, NotificationType notificationType, PageRequestDto pageRequestDto) {
 
         String userId = getUserIdFromToken(token);
 
@@ -96,8 +96,9 @@ public class NotificationService {
                 .totalElements(result.getTotalElements())
                 .content(notificationDtoList)
                 .build();
-    }*/
+    }
 
+    @Deprecated
     public PageResponse<Map<LocalDate, List<NotificationDto>>>
     getAllByUserId(String token, NotificationType notificationType, PageRequestDto pageRequestDto) {
 

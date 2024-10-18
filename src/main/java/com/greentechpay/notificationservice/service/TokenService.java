@@ -39,7 +39,7 @@ public class TokenService {
         return userDeviceTokenRepository.existsByUserId(userId);
     }
 
-    protected String getDeviceTokenByUserId(String userId) {
+    public String getDeviceTokenByUserId(String userId) {
         return userDeviceTokenRepository.findDeviceTokenByUserId(userId);
     }
 
@@ -47,7 +47,7 @@ public class TokenService {
         return userDeviceTokenRepository.findTokensByUserIds(userIdList);
     }
 
-    protected Boolean isTokenValid(String userId) {
+    public Boolean isTokenValid(String userId) {
         UserDeviceToken userDeviceToken = userDeviceTokenRepository.getUserDeviceTokenByUserId(userId);
 
         if (userDeviceToken.getDeviceToken() != null) {

@@ -31,7 +31,7 @@ public class FirebaseMessagingService {
     private static final Logger logger = LoggerFactory.getLogger(FirebaseMessagingService.class);
 
     private Boolean checkUserId(PaymentNotificationMessageEvent event) {
-        if (event.getSender().getUserId() != null) {
+        if (event.getSender() != null) {
             Boolean isExist = tokenService.existsByUserId(event.getSender().getUserId());
             if (Boolean.TRUE.equals(isExist)) {
                 return true;
@@ -39,13 +39,13 @@ public class FirebaseMessagingService {
                 logger.error("User with id: {} not found", event.getSender().getUserId());
                 return false;
             }
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     private Boolean checkReceiverUserId(PaymentNotificationMessageEvent event) {
-        if (event.getReceiver().getUserId() != null) {
+        if (event.getReceiver() != null) {
             Boolean isExist = tokenService.existsByUserId(event.getReceiver().getUserId());
             if (Boolean.TRUE.equals(isExist)) {
                 return true;
@@ -82,11 +82,8 @@ public class FirebaseMessagingService {
         }
     }
 
-    @KafkaListener(topics = NOTIFICATION_PAYMENT_TOPIC, containerFactory = PAYMENT_NOTIFICATION_CONTAINER_FACTORY)
+    //@KafkaListener(topics = NOTIFICATION_PAYMENT_TOPIC, containerFactory = PAYMENT_NOTIFICATION_CONTAINER_FACTORY)
     public void sendPaymentNotificationByToken(PaymentNotificationMessageEvent event) {
-
-        logger.info("title: {}, senderUserId: {}, receiverUserId: {}",
-                event.getTitle(), event.getSender().getUserId(), event.getReceiver().getUserId());
 
         var existsByUserId = checkUserId(event);
         var existsByReceiverUserId = checkReceiverUserId(event);

@@ -42,7 +42,7 @@ public class MessageService {
                 .build();
     }
 
-    protected Message generateSenderMessage(PaymentNotificationMessageEvent paymentNotificationMessageEvent) {
+    public Message generateSenderMessage(PaymentNotificationMessageEvent paymentNotificationMessageEvent) {
         var body = paymentNotificationMessageEvent.getSender();
         Notification notification = Notification.builder()
                 .setTitle(paymentNotificationMessageEvent.getTitle())
@@ -56,7 +56,7 @@ public class MessageService {
                 .build();
     }
 
-    protected Message generateReceiverMessage(PaymentNotificationMessageEvent paymentNotificationMessageEvent) {
+    public Message generateReceiverMessage(PaymentNotificationMessageEvent paymentNotificationMessageEvent) {
         var requestBody = paymentNotificationMessageEvent.getReceiver();
         Notification receiverNotification = Notification.builder()
                 .setTitle(paymentNotificationMessageEvent.getTitle())
