@@ -81,7 +81,7 @@ public class NotificationService {
     }
 
     public PageResponse<List<NotificationDto>>
-    getAllByUserId(String token, NotificationType notificationType, PageRequestDto pageRequestDto) {
+    getAllListByUserId(String token, NotificationType notificationType, PageRequestDto pageRequestDto) {
 
         String userId = getUserIdFromToken(token);
 
@@ -97,6 +97,34 @@ public class NotificationService {
                 .content(notificationDtoList)
                 .build();
     }
+
+    @Deprecated
+    public PageResponse<Map<LocalDate, List<NotificationDto>>>
+    getAllByUserId(String token, NotificationType notificationType, PageRequestDto pageRequestDto) {
+
+        var pageRequest = PageRequest.of(pageRequestDto.page(), pageRequestDto.size());
+        String userId = getUserIdFromToken(token);
+        var result = notificationRepository.findAllByUserId(pageRequest, notificationType, userId)
+                .orElseThrow(() -> new UserNotFoundException(USER_IS_NOT_FOUND + userId));
+
+        Map<LocalDate, List<NotificationDto>> notifcationMap = new HashMap<>();
+        for (Notification dto : result) {
+            LocalDate date = dto.getSendDate().toLocalDate();
+            List<NotificationDto> notificationDtoList = notifcationMap.getOrDefault(date, new ArrayList<>());
+            notificationDtoList.add(notificationMapper.entityToDto(dto));
+            notifcationMap.put(date, notificationDtoList);
+        }
+
+        Map<LocalDate, List<NotificationDto>> sortedMap = new TreeMap<>(Collections.reverseOrder());
+        sortedMap.putAll(notifcationMap);
+
+        return PageResponse.<Map<LocalDate, List<NotificationDto>>>builder()
+                .totalPages(result.getTotalPages())
+                .totalElements(result.getTotalElements())
+                .content(sortedMap)
+                .build();
+    }
+
 
     public NotificationDto getById(String token, Long id) {
 

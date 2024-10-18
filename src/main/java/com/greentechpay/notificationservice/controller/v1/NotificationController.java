@@ -1,4 +1,4 @@
-package com.greentechpay.notificationservice.controller;
+package com.greentechpay.notificationservice.controller.v1;
 
 import com.greentechpay.notificationservice.model.dto.NotificationMessageToAll;
 import com.greentechpay.notificationservice.model.enumarated.NotificationType;
@@ -23,7 +23,7 @@ import java.util.concurrent.ExecutionException;
 import static com.greentechpay.notificationservice.utils.HeaderKey.*;
 import static com.greentechpay.notificationservice.utils.ParamFilter.*;
 
-@RestController
+@RestController("v1")
 @RequiredArgsConstructor
 @RequestMapping("api/v1/notification")
 @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE})
@@ -53,8 +53,9 @@ public class NotificationController {
         return ResponseEntity.ok(notificationService.getById(token, id));
     }
 
+    @Deprecated
     @PostMapping("/page")
-    public ResponseEntity<PageResponse<List<NotificationDto>>>
+    public ResponseEntity<PageResponse<Map<LocalDate, List<NotificationDto>>>>
     getAllWithPageByUserId(@RequestHeader(AUTHORIZATION) String token,
                            @RequestParam(NOTIFICATION_TYPE) NotificationType notificationType,
                            @Valid @RequestBody PageRequestDto pageRequestDto) {
