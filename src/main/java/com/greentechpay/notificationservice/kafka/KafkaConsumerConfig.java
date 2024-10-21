@@ -33,9 +33,9 @@ public class KafkaConsumerConfig {
 
     @Bean
     public CommonErrorHandler errorHandler() {
-        ExponentialBackOffWithMaxRetries backOff = new ExponentialBackOffWithMaxRetries(3);
+        ExponentialBackOffWithMaxRetries backOff = new ExponentialBackOffWithMaxRetries(1);
         backOff.setInitialInterval(1000L);
-        backOff.setMultiplier(2);
+        backOff.setMultiplier(1);
         backOff.setMaxInterval(10000L);
         return new DefaultErrorHandler(backOff);
     }

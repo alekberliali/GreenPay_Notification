@@ -1,11 +1,11 @@
-package com.greentechpay.notificationservice.listener.process;
+package com.greentechpay.notificationservice.kafka.listener.process;
 
 import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
 import com.greentechpay.notificationservice.kafka.dto.PaymentNotificationMessageEvent;
-import com.greentechpay.notificationservice.listener.strategy.ReceiverNotificationStrategy;
-import com.greentechpay.notificationservice.listener.strategy.SendMessageStrategy;
-import com.greentechpay.notificationservice.listener.strategy.SenderNotificationStrategy;
+import com.greentechpay.notificationservice.kafka.listener.strategy.SenderNotificationStrategy;
+import com.greentechpay.notificationservice.kafka.listener.strategy.ReceiverNotificationStrategy;
+import com.greentechpay.notificationservice.kafka.listener.strategy.SendMessageStrategy;
 import com.greentechpay.notificationservice.model.dto.Body;
 import com.greentechpay.notificationservice.model.enumarated.NotificationProcessType;
 import com.greentechpay.notificationservice.model.enumarated.Status;
@@ -13,7 +13,7 @@ import com.greentechpay.notificationservice.service.TokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-@Service("IbanToPhoneNumber")
+@Service("ibanToPhoneNumber")
 @RequiredArgsConstructor
 public class IbanToPhoneNumber implements SenderNotificationStrategy, ReceiverNotificationStrategy, SendMessageStrategy {
 
@@ -81,16 +81,17 @@ public class IbanToPhoneNumber implements SenderNotificationStrategy, ReceiverNo
 
     @Override
     public void sendMessage(PaymentNotificationMessageEvent event) {
-        validation.senderValidation(event);
-        validation.receiverValidation(event);
-
-        if (event.getNotificationProcessType() == NotificationProcessType.ONCE) {
-            Message senderMessage = generateSenderNotificationMessage(event);
-            Message receiverMessage = generateReceiverNotificationMessage(event);
-            sendNotification.sendSenderNotification(event, senderMessage);
-            sendNotification.sendReceiverNotification(event, receiverMessage);
-        } else {
-            continuesProcess(event);
+        Boolean isSenderValid = validation.senderValidation(event);
+        Boolean isReceiverValid = validation.receiverValidation(event);
+        if (isSenderValid && isReceiverValid) {
+            if (event.getNotificationProcessType() == NotificationProcessType.ONCE) {
+                Message senderMessage = generateSenderNotificationMessage(event);
+                Message receiverMessage = generateReceiverNotificationMessage(event);
+                sendNotification.sendSenderNotification(event, senderMessage);
+                sendNotification.sendReceiverNotification(event, receiverMessage);
+            } else {
+                continuesProcess(event);
+            }
         }
     }
 }

@@ -1,19 +1,20 @@
-package com.greentechpay.notificationservice.listener.process;
+package com.greentechpay.notificationservice.kafka.listener.process;
 
 import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
 import com.greentechpay.notificationservice.kafka.dto.PaymentNotificationMessageEvent;
-import com.greentechpay.notificationservice.listener.strategy.ReceiverNotificationStrategy;
-import com.greentechpay.notificationservice.listener.strategy.SendMessageStrategy;
+import com.greentechpay.notificationservice.kafka.listener.strategy.ReceiverNotificationStrategy;
+import com.greentechpay.notificationservice.kafka.listener.strategy.SendMessageStrategy;
 import com.greentechpay.notificationservice.service.TokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-@Service("CardToBalance")
+@Service("cardToBalance")
 @RequiredArgsConstructor
 public class CardToBalance implements ReceiverNotificationStrategy, SendMessageStrategy {
 
     private final TokenService tokenService;
+    private final PaymentNotificationValidation validation;
     private final SendNotification sendNotification;
     private static final String CARD_TO_BALANCE = "+ %s %s, %s, %s";
 
@@ -36,7 +37,10 @@ public class CardToBalance implements ReceiverNotificationStrategy, SendMessageS
 
     @Override
     public void sendMessage(PaymentNotificationMessageEvent event) {
-        Message message = generateReceiverNotificationMessage(event);
-        sendNotification.sendReceiverNotification(event, message);
+        Boolean isReceiverValid = validation.receiverValidation(event);
+        if (Boolean.TRUE == isReceiverValid) {
+            Message message = generateReceiverNotificationMessage(event);
+            sendNotification.sendReceiverNotification(event, message);
+        }
     }
 }

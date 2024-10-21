@@ -1,7 +1,7 @@
-package com.greentechpay.notificationservice.listener.factory;
+package com.greentechpay.notificationservice.kafka.listener.factory;
 
 import com.greentechpay.notificationservice.kafka.dto.PaymentNotificationMessageEvent;
-import com.greentechpay.notificationservice.listener.strategy.SendMessageStrategy;
+import com.greentechpay.notificationservice.kafka.listener.strategy.SendMessageStrategy;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -19,7 +19,7 @@ public class NotificationFactoryImpl implements NotificationFactory {
 
     @Override
     public void executeNotification(PaymentNotificationMessageEvent event) {
-        SendMessageStrategy sendMessageStrategy = getSendMessageStrategy(event.getTransferType().name());
+        SendMessageStrategy sendMessageStrategy = getSendMessageStrategy(event.getTransferType().getValue());
         sendMessageStrategy.sendMessage(event);
     }
 }

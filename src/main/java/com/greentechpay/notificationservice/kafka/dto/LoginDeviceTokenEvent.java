@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class LoginDeviceTokenEvent {
-   private String UserId;
-   private String DeviceToken;
+   private String userId;
+   private String deviceToken;
 
 }

@@ -1,12 +1,20 @@
 package com.greentechpay.notificationservice.exception;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-@EqualsAndHashCode(callSuper = true)
-@Data
-@AllArgsConstructor
+@ResponseStatus(HttpStatus.NOT_FOUND)
+
 public class NotificationIsNotFound extends RuntimeException {
-    private final String message;
+    public static final String MESSAGE = "Notification Not Found";
+    private final Long id;
+
+    public NotificationIsNotFound(Long id) {
+        this.id = id;
+    }
+
+    @Override
+    public String getMessage() {
+        return MESSAGE + id;
+    }
 }
