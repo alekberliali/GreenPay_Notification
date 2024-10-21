@@ -1,19 +1,20 @@
-package com.greentechpay.notificationservice.listener.process;
+package com.greentechpay.notificationservice.kafka.listener.process;
 
 import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
 import com.greentechpay.notificationservice.kafka.dto.PaymentNotificationMessageEvent;
-import com.greentechpay.notificationservice.listener.strategy.ReceiverNotificationStrategy;
-import com.greentechpay.notificationservice.listener.strategy.SendMessageStrategy;
-import com.greentechpay.notificationservice.listener.strategy.SenderNotificationStrategy;
+import com.greentechpay.notificationservice.kafka.listener.strategy.ReceiverNotificationStrategy;
+import com.greentechpay.notificationservice.kafka.listener.strategy.SendMessageStrategy;
+import com.greentechpay.notificationservice.kafka.listener.strategy.SenderNotificationStrategy;
 import com.greentechpay.notificationservice.service.TokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-@Service("IbanToIban")
+@Service("ibanToIban")
 @RequiredArgsConstructor
 public class IbanToIban implements SenderNotificationStrategy, ReceiverNotificationStrategy, SendMessageStrategy {
     private final TokenService tokenService;
+    private final PaymentNotificationValidation validation;
     private final SendNotification sendNotification;
     private static final String IBAN_TO_IBAN_SENDER = "- %s %s, %s, %s";
     private static final String IBAN_TO_IBAN_RECEIVER = "+ %s %s, %s, %s";
@@ -56,9 +57,13 @@ public class IbanToIban implements SenderNotificationStrategy, ReceiverNotificat
 
     @Override
     public void sendMessage(PaymentNotificationMessageEvent event) {
-        Message senderMessage = generateSenderNotificationMessage(event);
-        Message receiverMessage = generateReceiverNotificationMessage(event);
-        sendNotification.sendSenderNotification(event, senderMessage);
-        sendNotification.sendReceiverNotification(event, receiverMessage);
+        Boolean isSenderValid = validation.senderValidation(event);
+        Boolean isReceiverValid = validation.receiverValidation(event);
+        if (isSenderValid && isReceiverValid) {
+            Message senderMessage = generateSenderNotificationMessage(event);
+            Message receiverMessage = generateReceiverNotificationMessage(event);
+            sendNotification.sendSenderNotification(event, senderMessage);
+            sendNotification.sendReceiverNotification(event, receiverMessage);
+        }
     }
 }

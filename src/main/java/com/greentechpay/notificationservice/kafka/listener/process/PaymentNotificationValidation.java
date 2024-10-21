@@ -1,5 +1,6 @@
-package com.greentechpay.notificationservice.listener.process;
+package com.greentechpay.notificationservice.kafka.listener.process;
 
+import com.greentechpay.notificationservice.exception.UserNotFoundException;
 import com.greentechpay.notificationservice.kafka.dto.PaymentNotificationMessageEvent;
 import com.greentechpay.notificationservice.model.enumarated.Status;
 import com.greentechpay.notificationservice.service.TokenService;
@@ -11,8 +12,8 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class PaymentNotificationValidation {
+    private static final Logger log = LoggerFactory.getLogger(PaymentNotificationValidation.class);
     private final TokenService tokenService;
-    private static final Logger logger = LoggerFactory.getLogger(PaymentNotificationValidation.class);
 
     private static void checkStatus(Status status) {
         var isExist = Status.getStatusList().contains(status);
@@ -21,21 +22,32 @@ public class PaymentNotificationValidation {
         }
     }
 
-    protected void senderValidation(PaymentNotificationMessageEvent event) {
-        checkStatus(event.getStatus());
-        Boolean isValid = tokenService.isTokenValid(event.getSender().getUserId());
-        if (Boolean.FALSE == isValid) {
-            logger.error("sender user token is not exist: {}", event.getSender().getUserId());
-            throw new IllegalArgumentException("Invalid token " + event.getSender().getUserId());
+    private void checkUserId(String userId) {
+        var isExist = tokenService.existsByUserId(userId);
+        if (Boolean.FALSE == isExist) {
+            throw new UserNotFoundException(userId);
         }
     }
 
-    protected void receiverValidation(PaymentNotificationMessageEvent event) {
+    protected Boolean senderValidation(PaymentNotificationMessageEvent event) {
         checkStatus(event.getStatus());
+        checkUserId(event.getSender().getUserId());
+        Boolean isValid = tokenService.isTokenValid(event.getSender().getUserId());
+        if (Boolean.FALSE == isValid) {
+            log.error("Invalid token sender user id: {}", event.getSender().getUserId());
+            return false;
+        }
+        return true;
+    }
+
+    protected Boolean receiverValidation(PaymentNotificationMessageEvent event) {
+        checkStatus(event.getStatus());
+        checkUserId(event.getReceiver().getUserId());
         Boolean isValid = tokenService.isTokenValid(event.getReceiver().getUserId());
         if (Boolean.FALSE == isValid) {
-            logger.error("receiver user token is not exist: {}", event.getReceiver().getUserId());
-            throw new IllegalArgumentException("Invalid token " + event.getReceiver().getUserId());
+            log.error("Invalid token receiver user id: {}", event.getReceiver().getUserId());
+            return false;
         }
+        return true;
     }
 }

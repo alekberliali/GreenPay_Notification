@@ -1,25 +1,26 @@
-package com.greentechpay.notificationservice.listener.process;
+package com.greentechpay.notificationservice.kafka.listener.process;
 
 import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
 import com.greentechpay.notificationservice.kafka.dto.PaymentNotificationMessageEvent;
-import com.greentechpay.notificationservice.listener.strategy.SendMessageStrategy;
-import com.greentechpay.notificationservice.listener.strategy.SenderNotificationStrategy;
+import com.greentechpay.notificationservice.kafka.listener.strategy.SenderNotificationStrategy;
+import com.greentechpay.notificationservice.kafka.listener.strategy.SendMessageStrategy;
 import com.greentechpay.notificationservice.service.TokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-@Service("BillingPayment")
+@Service("balanceToCard")
 @RequiredArgsConstructor
-public class BillingPayment implements SenderNotificationStrategy, SendMessageStrategy {
+public class BalanceToCard implements SenderNotificationStrategy, SendMessageStrategy {
 
     private final TokenService tokenService;
+    private final PaymentNotificationValidation validation;
     private final SendNotification sendNotification;
-    private static final String BILLING_FORMAT = "- %s %s, %s, %s";
+    private static final String CARD_TO_BALANCE_FORMAT = "- %s %s, %s, %s";
 
     public Notification generateSenderNotification(PaymentNotificationMessageEvent event) {
         var requestBody = event.getSender();
-        String message = String.format(BILLING_FORMAT, requestBody.getAmount(), requestBody.getCurrency(),
+        String message = String.format(CARD_TO_BALANCE_FORMAT, requestBody.getAmount(), requestBody.getCurrency(),
                 requestBody.getDate(), event.getStatus());
         return Notification.builder()
                 .setTitle(event.getTitle())
@@ -37,7 +38,10 @@ public class BillingPayment implements SenderNotificationStrategy, SendMessageSt
 
     @Override
     public void sendMessage(PaymentNotificationMessageEvent event) {
-        Message message = generateSenderNotificationMessage(event);
-        sendNotification.sendSenderNotification(event, message);
+        Boolean isSenderValid = validation.senderValidation(event);
+        if (Boolean.TRUE == isSenderValid) {
+            Message message = generateSenderNotificationMessage(event);
+            sendNotification.sendSenderNotification(event, message);
+        }
     }
 }

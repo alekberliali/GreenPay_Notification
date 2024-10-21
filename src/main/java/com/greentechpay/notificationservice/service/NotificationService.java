@@ -14,11 +14,8 @@ import com.greentechpay.notificationservice.jwt.JwtUtil;
 import com.greentechpay.notificationservice.kafka.dto.PaymentNotificationMessageEvent;
 import com.greentechpay.notificationservice.mapper.CustomNotificationMapper;
 import com.greentechpay.notificationservice.mapper.NotificationMapper;
-import com.greentechpay.notificationservice.model.enumarated.TransferType;
 import com.greentechpay.notificationservice.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,8 +33,6 @@ public class NotificationService {
     private final NotificationMapper notificationMapper;
     private final CustomNotificationMapper customNotificationMapper;
     private final JwtUtil jwtUtil;
-
-    private static final Logger logger = LoggerFactory.getLogger(NotificationService.class);
 
     private String getUserIdFromToken(String token) {
         String jwt = token.substring(7);
@@ -87,7 +82,7 @@ public class NotificationService {
 
         var pageRequest = PageRequest.of(pageRequestDto.page(), pageRequestDto.size());
         var result = notificationRepository.findAllByUserId(pageRequest, notificationType, userId)
-                .orElseThrow(() -> new UserNotFoundException(USER_IS_NOT_FOUND + userId));
+                .orElseThrow(() -> new UserNotFoundException(userId));
 
         List<NotificationDto> notificationDtoList = notificationMapper.entityListToDtoList(result.getContent());
 
@@ -105,7 +100,7 @@ public class NotificationService {
         var pageRequest = PageRequest.of(pageRequestDto.page(), pageRequestDto.size());
         String userId = getUserIdFromToken(token);
         var result = notificationRepository.findAllByUserId(pageRequest, notificationType, userId)
-                .orElseThrow(() -> new UserNotFoundException(USER_IS_NOT_FOUND + userId));
+                .orElseThrow(() -> new UserNotFoundException(userId));
 
         Map<LocalDate, List<NotificationDto>> notifcationMap = new HashMap<>();
         for (Notification dto : result) {
@@ -131,11 +126,11 @@ public class NotificationService {
         String userId = getUserIdFromToken(token);
 
         if (Boolean.FALSE.equals(existByUserIdAndId(userId, id))) {
-            throw new NotificationIsNotFound(NOTIFICATION_ID_IS_NOT_EXIST + id);
+            throw new NotificationIsNotFound(id);
         }
 
         var notification = notificationRepository.findById(id)
-                .orElseThrow(() -> new NotificationIsNotFound(NOTIFICATION_ID_IS_NOT_EXIST + id));
+                .orElseThrow(() -> new NotificationIsNotFound(id));
         updateNotificationStatus(notification);
         return notificationMapper.entityToDto(notification);
     }
@@ -149,12 +144,12 @@ public class NotificationService {
         String userId = getUserIdFromToken(token);
 
         if (Boolean.FALSE.equals(existByUserIdAndId(userId, id))) {
-            throw new NotificationIsNotFound(NOTIFICATION_ID_IS_NOT_EXIST + id);
+            throw new NotificationIsNotFound(id);
         }
 
         if (notificationRepository.existsById(id)) {
             notificationRepository.deleteById(id);
-        } else throw new NotificationIsNotFound(NOTIFICATION_ID_IS_NOT_EXIST + id);
+        } else throw new NotificationIsNotFound(id);
     }
 
     @Transactional

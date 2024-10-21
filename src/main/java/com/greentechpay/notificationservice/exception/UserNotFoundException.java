@@ -1,12 +1,20 @@
 package com.greentechpay.notificationservice.exception;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-@AllArgsConstructor
-public class UserNotFoundException extends RuntimeException{
-    private final String message;
+public class UserNotFoundException extends RuntimeException {
+    public static final String MESSAGE = "User not found";
+    private final String id;
+
+    public UserNotFoundException(String id) {
+        this.id = id;
+    }
+
+    @Override
+    public String getMessage() {
+        return MESSAGE + id;
+    }
 }

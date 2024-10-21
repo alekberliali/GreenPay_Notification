@@ -6,17 +6,21 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum TransferType {
-    IbanToPhoneNumber(""),
-    IbanToIban(""),
-    UIdToUId(""),
-    UIdToIban(""),
-    IbanToUId(""),
+    IbanToPhoneNumber("ibanToPhoneNumber"),
+    IbanToIban("ibanToIban"),
+    UIdToUId("uIdToUId"),
+    UIdToIban("uIdToIban"),
+    IbanToUId("ibanToUid"),
     BalanceToCard("balanceToCard"),
     CardToBalance("cardToBalance"),
-    BillingPayment("billing"),
-    Qr(""),
-    Nfc(""),
+    BillingPayment("billingPayment"),
+    Qr("qr"),
+    Nfc("nfc"),
     NONE("none");
 
     private final String value;
+
+    public static String getValue(TransferType transferType) {
+        return transferType.getValue();
+    }
 }

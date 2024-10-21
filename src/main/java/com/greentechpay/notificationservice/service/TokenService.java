@@ -35,7 +35,7 @@ public class TokenService {
         }
     }
 
-    protected Boolean existsByUserId(String userId) {
+    public Boolean existsByUserId(String userId) {
         return userDeviceTokenRepository.existsByUserId(userId);
     }
 
