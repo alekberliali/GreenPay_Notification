@@ -19,20 +19,20 @@ public class SendNotification {
     private final PaymentNotificationValidation validation;
 
     public void sendSenderNotification(PaymentNotificationMessageEvent event, Message message) {
+        notificationService.create(event, NotificationParty.SENDER);
         validation.senderValidation(event);
         try {
             firebaseMessaging.send(message);
-            notificationService.create(event, NotificationParty.SENDER);
         } catch (FirebaseMessagingException e) {
             log.error("Failed to send sender notification: {}", e.getMessage());
         }
     }
 
     public void sendReceiverNotification(PaymentNotificationMessageEvent event, Message message) {
+        notificationService.create(event, NotificationParty.RECEIVER);
         validation.receiverValidation(event);
         try {
             firebaseMessaging.send(message);
-            notificationService.create(event, NotificationParty.RECEIVER);
         } catch (FirebaseMessagingException e) {
             log.error("Failed to send receiver notification: {}", e.getMessage());
         }
