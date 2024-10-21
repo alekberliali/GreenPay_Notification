@@ -6,6 +6,8 @@ import com.greentechpay.notificationservice.kafka.dto.PaymentNotificationMessage
 import com.greentechpay.notificationservice.kafka.listener.strategy.ReceiverNotificationStrategy;
 import com.greentechpay.notificationservice.kafka.listener.strategy.SendMessageStrategy;
 import com.greentechpay.notificationservice.kafka.listener.strategy.SenderNotificationStrategy;
+import com.greentechpay.notificationservice.model.enumarated.NotificationParty;
+import com.greentechpay.notificationservice.service.NotificationService;
 import com.greentechpay.notificationservice.service.TokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class IbanToIban implements SenderNotificationStrategy, ReceiverNotificationStrategy, SendMessageStrategy {
     private final TokenService tokenService;
+    private final NotificationService notificationService;
     private final PaymentNotificationValidation validation;
     private final SendNotification sendNotification;
     private static final String IBAN_TO_IBAN_SENDER = "- %s %s, %s, %s";
@@ -57,6 +60,8 @@ public class IbanToIban implements SenderNotificationStrategy, ReceiverNotificat
 
     @Override
     public void sendMessage(PaymentNotificationMessageEvent event) {
+        notificationService.create(event, NotificationParty.SENDER);
+        notificationService.create(event, NotificationParty.RECEIVER);
         Boolean isSenderValid = validation.senderValidation(event);
         Boolean isReceiverValid = validation.receiverValidation(event);
         if (isSenderValid && isReceiverValid) {
