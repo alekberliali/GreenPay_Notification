@@ -7,8 +7,10 @@ import com.greentechpay.notificationservice.kafka.listener.strategy.SenderNotifi
 import com.greentechpay.notificationservice.kafka.listener.strategy.ReceiverNotificationStrategy;
 import com.greentechpay.notificationservice.kafka.listener.strategy.SendMessageStrategy;
 import com.greentechpay.notificationservice.model.dto.Body;
+import com.greentechpay.notificationservice.model.enumarated.NotificationParty;
 import com.greentechpay.notificationservice.model.enumarated.NotificationProcessType;
 import com.greentechpay.notificationservice.model.enumarated.Status;
+import com.greentechpay.notificationservice.service.NotificationService;
 import com.greentechpay.notificationservice.service.TokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class IbanToPhoneNumber implements SenderNotificationStrategy, ReceiverNotificationStrategy, SendMessageStrategy {
 
+    private final NotificationService notificationService;
     private final TokenService tokenService;
     private final SendNotification sendNotification;
     private final PaymentNotificationValidation validation;
@@ -81,6 +84,8 @@ public class IbanToPhoneNumber implements SenderNotificationStrategy, ReceiverNo
 
     @Override
     public void sendMessage(PaymentNotificationMessageEvent event) {
+        notificationService.create(event, NotificationParty.SENDER);
+        notificationService.create(event, NotificationParty.RECEIVER);
         Boolean isSenderValid = validation.senderValidation(event);
         Boolean isReceiverValid = validation.receiverValidation(event);
         if (isSenderValid && isReceiverValid) {

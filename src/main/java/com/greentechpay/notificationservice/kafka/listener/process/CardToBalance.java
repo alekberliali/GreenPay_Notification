@@ -5,6 +5,8 @@ import com.google.firebase.messaging.Notification;
 import com.greentechpay.notificationservice.kafka.dto.PaymentNotificationMessageEvent;
 import com.greentechpay.notificationservice.kafka.listener.strategy.ReceiverNotificationStrategy;
 import com.greentechpay.notificationservice.kafka.listener.strategy.SendMessageStrategy;
+import com.greentechpay.notificationservice.model.enumarated.NotificationParty;
+import com.greentechpay.notificationservice.service.NotificationService;
 import com.greentechpay.notificationservice.service.TokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Service;
 public class CardToBalance implements ReceiverNotificationStrategy, SendMessageStrategy {
 
     private final TokenService tokenService;
+    private final NotificationService notificationService;
     private final PaymentNotificationValidation validation;
     private final SendNotification sendNotification;
     private static final String CARD_TO_BALANCE = "+ %s %s, %s, %s";
@@ -37,6 +40,7 @@ public class CardToBalance implements ReceiverNotificationStrategy, SendMessageS
 
     @Override
     public void sendMessage(PaymentNotificationMessageEvent event) {
+        notificationService.create(event, NotificationParty.RECEIVER);
         Boolean isReceiverValid = validation.receiverValidation(event);
         if (Boolean.TRUE == isReceiverValid) {
             Message message = generateReceiverNotificationMessage(event);
