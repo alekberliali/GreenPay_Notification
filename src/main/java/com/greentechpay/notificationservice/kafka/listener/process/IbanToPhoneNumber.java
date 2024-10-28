@@ -67,18 +67,34 @@ public class IbanToPhoneNumber implements SenderNotificationStrategy, ReceiverNo
                 .build();
     }
 
-    public void continuesProcess(PaymentNotificationMessageEvent event) {
+    private void continuesProcess(PaymentNotificationMessageEvent event) {
+        boolean isSenderValid = validation.senderValidation(event);
+        boolean isReceiverValid = validation.receiverValidation(event);
         Message senderMessage = generateSenderNotificationMessage(event);
         Message receiverMessage = generateReceiverNotificationMessage(event);
 
-        if (event.getStatus() == Status.Pending) {
-            sendNotification.sendSenderNotification(event, senderMessage);
-        } else if (event.getNotificationProcessType() == NotificationProcessType.CONTINUES) {
+        if (event.getStatus() == Status.Pending && isSenderValid) {
+            sendNotification.sendSenderNotification(senderMessage);
+        } else if (isReceiverValid) {
             if (event.getStatus() == Status.Success) {
-                sendNotification.sendReceiverNotification(event, receiverMessage);
-            } else {
-                sendNotification.sendSenderNotification(event, senderMessage);
+                sendNotification.sendReceiverNotification(receiverMessage);
+            } else if (isSenderValid){
+                sendNotification.sendSenderNotification(senderMessage);
             }
+        }
+    }
+
+    private void onceProcess(PaymentNotificationMessageEvent event) {
+        boolean isSenderValid = validation.senderValidation(event);
+        boolean isReceiverValid = validation.receiverValidation(event);
+
+        if (isSenderValid) {
+            Message senderMessage = generateSenderNotificationMessage(event);
+            sendNotification.sendSenderNotification(senderMessage);
+        }
+        if (isReceiverValid) {
+            Message receiverMessage = generateReceiverNotificationMessage(event);
+            sendNotification.sendReceiverNotification(receiverMessage);
         }
     }
 
@@ -86,17 +102,10 @@ public class IbanToPhoneNumber implements SenderNotificationStrategy, ReceiverNo
     public void sendMessage(PaymentNotificationMessageEvent event) {
         notificationService.create(event, NotificationParty.SENDER);
         notificationService.create(event, NotificationParty.RECEIVER);
-        Boolean isSenderValid = validation.senderValidation(event);
-        Boolean isReceiverValid = validation.receiverValidation(event);
-        if (isSenderValid && isReceiverValid) {
-            if (event.getNotificationProcessType() == NotificationProcessType.ONCE) {
-                Message senderMessage = generateSenderNotificationMessage(event);
-                Message receiverMessage = generateReceiverNotificationMessage(event);
-                sendNotification.sendSenderNotification(event, senderMessage);
-                sendNotification.sendReceiverNotification(event, receiverMessage);
-            } else {
-                continuesProcess(event);
-            }
+        if (event.getNotificationProcessType() == NotificationProcessType.ONCE) {
+            onceProcess(event);
+        } else {
+            continuesProcess(event);
         }
     }
 }

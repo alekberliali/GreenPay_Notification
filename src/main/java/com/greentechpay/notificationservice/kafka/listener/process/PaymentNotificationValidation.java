@@ -5,14 +5,13 @@ import com.greentechpay.notificationservice.kafka.dto.PaymentNotificationMessage
 import com.greentechpay.notificationservice.model.enumarated.Status;
 import com.greentechpay.notificationservice.service.TokenService;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class PaymentNotificationValidation {
-    private static final Logger log = LoggerFactory.getLogger(PaymentNotificationValidation.class);
     private final TokenService tokenService;
 
     private static void checkStatus(Status status) {

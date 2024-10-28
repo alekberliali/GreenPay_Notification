@@ -41,10 +41,10 @@ public class CardToBalance implements ReceiverNotificationStrategy, SendMessageS
     @Override
     public void sendMessage(PaymentNotificationMessageEvent event) {
         notificationService.create(event, NotificationParty.RECEIVER);
-        Boolean isReceiverValid = validation.receiverValidation(event);
-        if (Boolean.TRUE == isReceiverValid) {
+        boolean isReceiverValid = validation.receiverValidation(event);
+        if (isReceiverValid) {
             Message message = generateReceiverNotificationMessage(event);
-            sendNotification.sendReceiverNotification(event, message);
+            sendNotification.sendReceiverNotification(message);
         }
     }
 }

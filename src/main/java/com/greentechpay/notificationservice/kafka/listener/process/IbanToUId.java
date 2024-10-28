@@ -62,13 +62,15 @@ public class IbanToUId implements SenderNotificationStrategy, ReceiverNotificati
     public void sendMessage(PaymentNotificationMessageEvent event) {
         notificationService.create(event, NotificationParty.SENDER);
         notificationService.create(event, NotificationParty.RECEIVER);
-        Boolean isSenderValid = validation.senderValidation(event);
-        Boolean isReceiverValid = validation.receiverValidation(event);
-        if (isSenderValid && isReceiverValid) {
-            var senderMessage = generateSenderNotificationMessage(event);
-            var receiverMessage = generateReceiverNotificationMessage(event);
-            sendNotification.sendSenderNotification(event, senderMessage);
-            sendNotification.sendReceiverNotification(event, receiverMessage);
+        boolean isSenderValid = validation.senderValidation(event);
+        boolean isReceiverValid = validation.receiverValidation(event);
+        if (isSenderValid) {
+            Message senderMessage = generateSenderNotificationMessage(event);
+            sendNotification.sendSenderNotification(senderMessage);
+        }
+        if (isReceiverValid) {
+            Message receiverMessage = generateReceiverNotificationMessage(event);
+            sendNotification.sendReceiverNotification(receiverMessage);
         }
     }
 }

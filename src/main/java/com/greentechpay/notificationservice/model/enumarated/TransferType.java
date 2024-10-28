@@ -19,8 +19,4 @@ public enum TransferType {
     NONE("none");
 
     private final String value;
-
-    public static String getValue(TransferType transferType) {
-        return transferType.getValue();
-    }
 }

@@ -53,7 +53,6 @@ public class TokenService {
         if (userDeviceToken.getDeviceToken() != null) {
             return Boolean.TRUE;
         }
-
         return Boolean.FALSE;
     }
 
@@ -65,7 +64,7 @@ public class TokenService {
             userDeviceToken.setUpdatedAt(LocalDateTime.now());
             userDeviceTokenRepository.save(userDeviceToken);
         } else {
-            throw new UserNotFoundException("User could not find by id: " + userId);
+            throw new UserNotFoundException(userId);
         }
     }
 }

@@ -42,10 +42,10 @@ public class BalanceToCard implements SenderNotificationStrategy, SendMessageStr
     @Override
     public void sendMessage(PaymentNotificationMessageEvent event) {
         notificationService.create(event, NotificationParty.SENDER);
-        Boolean isSenderValid = validation.senderValidation(event);
-        if (Boolean.TRUE == isSenderValid) {
+        boolean isSenderValid = validation.senderValidation(event);
+        if (isSenderValid) {
             Message message = generateSenderNotificationMessage(event);
-            sendNotification.sendSenderNotification(event, message);
+            sendNotification.sendSenderNotification(message);
         }
     }
 }
