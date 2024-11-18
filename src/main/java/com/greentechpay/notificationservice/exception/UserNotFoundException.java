@@ -5,8 +5,9 @@ import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
+
 public class UserNotFoundException extends RuntimeException {
-    public static final String MESSAGE = "User not found";
+    public static final String MESSAGE = "User not found: ";
     private final String id;
 
     public UserNotFoundException(String id) {

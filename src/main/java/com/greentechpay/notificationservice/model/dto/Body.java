@@ -1,6 +1,4 @@
 package com.greentechpay.notificationservice.model.dto;
-
-import com.greentechpay.notificationservice.model.enumarated.Status;
 import lombok.Data;
 
 import java.math.BigDecimal;

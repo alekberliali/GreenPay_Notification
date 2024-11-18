@@ -7,6 +7,7 @@ import com.greentechpay.notificationservice.model.entity.UserDeviceToken;
 import com.greentechpay.notificationservice.mapper.DeviceTokenMapper;
 import com.greentechpay.notificationservice.repository.UserDeviceTokenRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +16,7 @@ import java.util.List;
 
 import static com.greentechpay.notificationservice.kafka.KafkaConfigs.*;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TokenService {
@@ -50,19 +52,21 @@ public class TokenService {
     public Boolean isTokenValid(String userId) {
         UserDeviceToken userDeviceToken = userDeviceTokenRepository.getUserDeviceTokenByUserId(userId);
 
-        if (userDeviceToken.getDeviceToken() != null) {
+        if ((userDeviceToken.getDeviceToken() != null) && (!userDeviceToken.getDeviceToken().isEmpty())) {
             return Boolean.TRUE;
         }
         return Boolean.FALSE;
     }
 
     public void logout(AppUser user) {
+        log.info("Requested user id: {}", user.getUserId());
         String userId = user.getUserId();
         if (Boolean.TRUE.equals(existsByUserId(userId))) {
             UserDeviceToken userDeviceToken = userDeviceTokenRepository.getUserDeviceTokenByUserId(userId);
             userDeviceToken.setDeviceToken(null);
             userDeviceToken.setUpdatedAt(LocalDateTime.now());
             userDeviceTokenRepository.save(userDeviceToken);
+            log.info("User's token deleted: {}", userId);
         } else {
             throw new UserNotFoundException(userId);
         }

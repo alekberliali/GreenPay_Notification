@@ -6,7 +6,5 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface DeviceTokenMapper {
-
-    //@Mapping(source = "userId", target = "user.id")
     UserDeviceToken dtoToEntity(LoginDeviceTokenEvent dto);
 }

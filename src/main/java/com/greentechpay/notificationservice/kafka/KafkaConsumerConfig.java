@@ -12,9 +12,6 @@ import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
-import org.springframework.kafka.listener.CommonErrorHandler;
-import org.springframework.kafka.listener.DefaultErrorHandler;
-import org.springframework.kafka.support.ExponentialBackOffWithMaxRetries;
 import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 
@@ -30,15 +27,6 @@ import static org.apache.kafka.clients.consumer.OffsetResetStrategy.EARLIEST;
 public class KafkaConsumerConfig {
 
     private final KafkaConfigs kafkaConfigs;
-
-    @Bean
-    public CommonErrorHandler errorHandler() {
-        ExponentialBackOffWithMaxRetries backOff = new ExponentialBackOffWithMaxRetries(1);
-        backOff.setInitialInterval(1000L);
-        backOff.setMultiplier(1);
-        backOff.setMaxInterval(10000L);
-        return new DefaultErrorHandler(backOff);
-    }
 
     private Map<String, Object> consumerConfigs() {
         Map<String, Object> props = new HashMap<>();

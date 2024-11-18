@@ -64,7 +64,6 @@ public class NotificationController {
         notificationService.readAll(token);
     }
 
-
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public void deleteById(@RequestHeader(AUTHORIZATION) String token, @PathVariable Long id) {

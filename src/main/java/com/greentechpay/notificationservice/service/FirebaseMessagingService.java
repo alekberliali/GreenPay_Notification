@@ -7,15 +7,17 @@ import com.greentechpay.notificationservice.kafka.listener.factory.NotificationF
 import com.greentechpay.notificationservice.model.dto.NotificationMessageToAll;
 import com.greentechpay.notificationservice.kafka.dto.SimaNotificationMessageEvent;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.ExecutionException;
 
 import static com.greentechpay.notificationservice.kafka.KafkaConfigs.*;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class FirebaseMessagingService {
@@ -26,35 +28,31 @@ public class FirebaseMessagingService {
     private final AuthService authService;
     private final NotificationFactory notificationFactory;
 
-    private static final Logger logger = LoggerFactory.getLogger(FirebaseMessagingService.class);
-
-
     private void sendSimaNotification(Message message) {
         try {
             firebaseMessaging.send(message);
         } catch (FirebaseMessagingException exception) {
-            logger.error("Sima notification: Failed to send notification: {}", exception.getMessage());
+            log.error("Sima notification: Failed to send notification: {}", exception.getMessage());
         }
     }
 
     @KafkaListener(topics = NOTIFICATION_SIMA_TOPIC, containerFactory = SIMA_NOTIFICATION_CONTAINER_FACTORY)
+    @Retryable(maxAttempts = 1, backoff = @Backoff(delay = 0))
     public void sendSimaNotificationEvent(SimaNotificationMessageEvent event) {
 
         Boolean existsByUserId = tokenService.existsByUserId(event.getUserId());
 
         if (Boolean.FALSE.equals(existsByUserId)) {
-            logger.error("Sima notification: This user id could not find: {}", event.getUserId());
-
+            log.error("Sima notification: This user id could not find: {}", event.getUserId());
         } else if (Boolean.FALSE == tokenService.isTokenValid(event.getUserId())) {
-            logger.error("Sima notification: token is null");
-
+            log.error("Sima notification: token is null");
         } else {
             sendSimaNotification(messageService.generateSimaMessage(event));
         }
     }
 
-
     @KafkaListener(topics = NOTIFICATION_PAYMENT_TOPIC, containerFactory = PAYMENT_NOTIFICATION_CONTAINER_FACTORY)
+    @Retryable(maxAttempts = 1, backoff = @Backoff(delay = 0))
     public void sendPaymentNotificationByToken(PaymentNotificationMessageEvent event) {
         notificationFactory.executeNotification(event);
     }

@@ -1,6 +1,5 @@
 package com.greentechpay.notificationservice.kafka.listener.process;
 
-import com.greentechpay.notificationservice.exception.UserNotFoundException;
 import com.greentechpay.notificationservice.kafka.dto.PaymentNotificationMessageEvent;
 import com.greentechpay.notificationservice.model.enumarated.Status;
 import com.greentechpay.notificationservice.service.TokenService;
@@ -21,19 +20,22 @@ public class PaymentNotificationValidation {
         }
     }
 
-    private void checkUserId(String userId) {
+    private boolean checkUserId(String userId) {
         var isExist = tokenService.existsByUserId(userId);
         if (Boolean.FALSE == isExist) {
-            throw new UserNotFoundException(userId);
+            log.error("User id is not exist: {}", userId);
+            return false;
         }
+        return true;
     }
 
     protected Boolean senderValidation(PaymentNotificationMessageEvent event) {
         checkStatus(event.getStatus());
-        checkUserId(event.getSender().getUserId());
+        boolean valid = checkUserId(event.getSender().getUserId());
+        if (!valid) {return false;}
         Boolean isValid = tokenService.isTokenValid(event.getSender().getUserId());
         if (Boolean.FALSE == isValid) {
-            log.error("Invalid token sender user id: {}", event.getSender().getUserId());
+            log.error("Invalid token. Sender user id: {}", event.getSender().getUserId());
             return false;
         }
         return true;
@@ -41,10 +43,11 @@ public class PaymentNotificationValidation {
 
     protected Boolean receiverValidation(PaymentNotificationMessageEvent event) {
         checkStatus(event.getStatus());
-        checkUserId(event.getReceiver().getUserId());
+        boolean valid = checkUserId(event.getReceiver().getUserId());
+        if (!valid) {return false;}
         Boolean isValid = tokenService.isTokenValid(event.getReceiver().getUserId());
         if (Boolean.FALSE == isValid) {
-            log.error("Invalid token receiver user id: {}", event.getReceiver().getUserId());
+            log.error("Invalid token. Receiver user id: {}", event.getReceiver().getUserId());
             return false;
         }
         return true;

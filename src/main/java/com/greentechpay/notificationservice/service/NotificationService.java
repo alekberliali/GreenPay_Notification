@@ -24,7 +24,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import static com.greentechpay.notificationservice.utils.ResponseMessage.*;
 
 @Service
 @RequiredArgsConstructor

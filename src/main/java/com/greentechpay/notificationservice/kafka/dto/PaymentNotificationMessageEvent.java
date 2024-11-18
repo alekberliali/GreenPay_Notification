@@ -10,7 +10,6 @@ import java.util.Map;
 
 @Data
 public class PaymentNotificationMessageEvent {
-
     private String title;
     private Body sender;
     private Body receiver;

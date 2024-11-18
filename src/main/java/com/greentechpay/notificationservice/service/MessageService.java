@@ -4,7 +4,6 @@ import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.MulticastMessage;
 import com.google.firebase.messaging.Notification;
 import com.greentechpay.notificationservice.model.dto.NotificationMessageToAll;
-import com.greentechpay.notificationservice.kafka.dto.PaymentNotificationMessageEvent;
 import com.greentechpay.notificationservice.kafka.dto.SimaNotificationMessageEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,46 +25,6 @@ public class MessageService {
         return Message.builder()
                 .setToken(tokenService.getDeviceTokenByUserId(simaNotificationMessageEvent.getUserId()))
                 .setNotification(notification)
-                .build();
-    }
-
-    protected Message generatePendingMessage(PaymentNotificationMessageEvent paymentNotificationMessageEvent) {
-        var body = paymentNotificationMessageEvent.getSender();
-        Notification notification = Notification.builder()
-                .setTitle(paymentNotificationMessageEvent.getTitle())
-                .setBody("-" + body.getAmount() + " " + body.getCurrency() + ", " + body.getDate())
-                .setImage(paymentNotificationMessageEvent.getImage())
-                .build();
-        return Message.builder()
-                .setToken(tokenService.getDeviceTokenByUserId(paymentNotificationMessageEvent.getSender().getUserId()))
-                .setNotification(notification)
-                .build();
-    }
-
-    public Message generateSenderMessage(PaymentNotificationMessageEvent paymentNotificationMessageEvent) {
-        var body = paymentNotificationMessageEvent.getSender();
-        Notification notification = Notification.builder()
-                .setTitle(paymentNotificationMessageEvent.getTitle())
-                .setBody("-" + body.getAmount() + " " + body.getCurrency()
-                        + ", " + body.getDate() + ", " + paymentNotificationMessageEvent.getStatus().name())
-                .setImage(paymentNotificationMessageEvent.getImage())
-                .build();
-        return Message.builder()
-                .setToken(tokenService.getDeviceTokenByUserId(paymentNotificationMessageEvent.getSender().getUserId()))
-                .setNotification(notification)
-                .build();
-    }
-
-    public Message generateReceiverMessage(PaymentNotificationMessageEvent paymentNotificationMessageEvent) {
-        var requestBody = paymentNotificationMessageEvent.getReceiver();
-        Notification receiverNotification = Notification.builder()
-                .setTitle(paymentNotificationMessageEvent.getTitle())
-                .setBody("+" + requestBody.getAmount() + " " + requestBody.getCurrency()
-                        + ", " + requestBody.getDate() + ", " + paymentNotificationMessageEvent.getStatus())
-                .build();
-        return Message.builder()
-                .setToken(tokenService.getDeviceTokenByUserId(paymentNotificationMessageEvent.getReceiver().getUserId()))
-                .setNotification(receiverNotification)
                 .build();
     }
 
