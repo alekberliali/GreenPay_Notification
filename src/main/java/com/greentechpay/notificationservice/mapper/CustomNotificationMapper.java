@@ -1,6 +1,6 @@
 package com.greentechpay.notificationservice.mapper;
 
-import com.greentechpay.notificationservice.model.dto.NotificationMessageToAll;
+import com.greentechpay.notificationservice.model.dto.request.NotificationMessageToAll;
 import com.greentechpay.notificationservice.kafka.dto.PaymentNotificationMessageEvent;
 import com.greentechpay.notificationservice.model.enumarated.NotificationType;
 import com.greentechpay.notificationservice.model.entity.Notification;

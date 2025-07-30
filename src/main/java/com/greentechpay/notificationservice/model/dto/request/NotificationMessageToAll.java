@@ -1,4 +1,4 @@
-package com.greentechpay.notificationservice.model.dto;
+package com.greentechpay.notificationservice.model.dto.request;
 
 import com.greentechpay.notificationservice.model.enumarated.NotificationType;
 import lombok.Data;

@@ -1,4 +1,4 @@
-package com.greentechpay.notificationservice.kafka.listener.process;
+package com.greentechpay.notificationservice.kafka.consumer.process;
 
 import com.greentechpay.notificationservice.kafka.dto.PaymentNotificationMessageEvent;
 import com.greentechpay.notificationservice.model.enumarated.Status;

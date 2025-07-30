@@ -3,7 +3,7 @@ package com.greentechpay.notificationservice.service;
 import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.MulticastMessage;
 import com.google.firebase.messaging.Notification;
-import com.greentechpay.notificationservice.model.dto.NotificationMessageToAll;
+import com.greentechpay.notificationservice.model.dto.request.NotificationMessageToAll;
 import com.greentechpay.notificationservice.kafka.dto.SimaNotificationMessageEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

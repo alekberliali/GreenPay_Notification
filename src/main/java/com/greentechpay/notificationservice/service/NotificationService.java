@@ -1,6 +1,6 @@
 package com.greentechpay.notificationservice.service;
 
-import com.greentechpay.notificationservice.model.dto.NotificationMessageToAll;
+import com.greentechpay.notificationservice.model.dto.request.NotificationMessageToAll;
 import com.greentechpay.notificationservice.model.enumarated.NotificationParty;
 import com.greentechpay.notificationservice.model.enumarated.NotificationType;
 import com.greentechpay.notificationservice.model.dto.request.PageRequestDto;
@@ -14,6 +14,7 @@ import com.greentechpay.notificationservice.jwt.JwtUtil;
 import com.greentechpay.notificationservice.kafka.dto.PaymentNotificationMessageEvent;
 import com.greentechpay.notificationservice.mapper.CustomNotificationMapper;
 import com.greentechpay.notificationservice.mapper.NotificationMapper;
+import com.greentechpay.notificationservice.model.enumarated.SenderParty;
 import com.greentechpay.notificationservice.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -54,6 +55,7 @@ public class NotificationService {
     private void createSenderNotification(PaymentNotificationMessageEvent event) {
         var notification = customNotificationMapper.convertFromPaymentNotificationMessageEventForSender(event);
         notification.setSendDate(LocalDateTime.now());
+        notification.setSenderType(SenderParty.CLIENT.name());
         notification.setReadStatus(false);
         notificationRepository.save(notification);
     }
@@ -61,6 +63,7 @@ public class NotificationService {
     private void createReceiverNotification(PaymentNotificationMessageEvent event) {
         var notification = customNotificationMapper.convertFromPaymentNotificationMessageEventForReceiver(event);
         notification.setSendDate(LocalDateTime.now());
+        notification.setSenderType(SenderParty.CLIENT.name());
         notification.setReadStatus(false);
         notificationRepository.save(notification);
     }
@@ -68,6 +71,7 @@ public class NotificationService {
     public void createAll(NotificationMessageToAll notificationMessageToAll) {
         var notificationList = customNotificationMapper.convertFromNotificationMessageAll(notificationMessageToAll);
         for (Notification notification : notificationList) {
+            notification.setSenderType(SenderParty.BACK.name());
             notification.setSendDate(LocalDateTime.now());
             notification.setReadStatus(false);
         }

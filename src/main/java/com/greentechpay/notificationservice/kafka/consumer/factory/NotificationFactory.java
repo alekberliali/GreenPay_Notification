@@ -1,4 +1,4 @@
-package com.greentechpay.notificationservice.kafka.listener.factory;
+package com.greentechpay.notificationservice.kafka.consumer.factory;
 
 import com.greentechpay.notificationservice.kafka.dto.PaymentNotificationMessageEvent;
 

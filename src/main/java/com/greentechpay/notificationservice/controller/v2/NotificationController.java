@@ -1,21 +1,20 @@
 package com.greentechpay.notificationservice.controller.v2;
 
-import com.greentechpay.notificationservice.kafka.dto.PaymentNotificationMessageEvent;
-import com.greentechpay.notificationservice.model.dto.NotificationMessageToAll;
 import com.greentechpay.notificationservice.model.dto.request.PageRequestDto;
+import com.greentechpay.notificationservice.model.dto.response.NotificationBackDto;
 import com.greentechpay.notificationservice.model.dto.response.NotificationDto;
 import com.greentechpay.notificationservice.model.dto.response.PageResponse;
 import com.greentechpay.notificationservice.model.dto.response.ResponseDto;
 import com.greentechpay.notificationservice.model.enumarated.NotificationType;
-import com.greentechpay.notificationservice.service.FirebaseMessagingService;
 import com.greentechpay.notificationservice.service.NotificationService;
+import io.micrometer.common.lang.Nullable;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import static com.greentechpay.notificationservice.utils.HeaderKey.*;
 import static com.greentechpay.notificationservice.utils.ParamFilter.NOTIFICATION_TYPE;
@@ -25,25 +24,13 @@ import static com.greentechpay.notificationservice.utils.ParamFilter.NOTIFICATIO
 @RequestMapping("api/v2/notification")
 @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE})
 public class NotificationController {
-    private final FirebaseMessagingService firebaseMessagingService;
     private final NotificationService notificationService;
 
-    @PostMapping("/send-all")
-    public ResponseEntity<Integer> sendAll(@RequestHeader(value = AGENT_NAME) String agentName,
-                                           @RequestHeader(value = AGENT_PASSWORD) String agentPassword,
-                                           @RequestHeader(value = AGENT_ID) String agentId,
-                                           @RequestHeader(value = ACCESS_TOKEN) String accessToken,
-                                           @RequestHeader(value = AUTHORIZATION) String authorization,
-                                           @RequestBody NotificationMessageToAll notificationMessageToAll)
-            throws ExecutionException, InterruptedException {
-        return ResponseEntity.ok(firebaseMessagingService.sendNotificationToManyUser(agentName, agentPassword, agentId,
-                accessToken, authorization, notificationMessageToAll));
+    @GetMapping("/history")
+    public ResponseEntity<List<NotificationBackDto>> getAll(@RequestParam @Nullable Long merchantId) {
+        return ResponseEntity.ok();
     }
 
-    @PostMapping("/send")
-    public void send(@RequestBody PaymentNotificationMessageEvent paymentNotificationMessageEvent) {
-        firebaseMessagingService.sendPaymentNotificationByToken(paymentNotificationMessageEvent);
-    }
 
     @GetMapping("/get/{id}")
     public ResponseEntity<NotificationDto> getById(@RequestHeader(AUTHORIZATION) String token, @PathVariable Long id) {

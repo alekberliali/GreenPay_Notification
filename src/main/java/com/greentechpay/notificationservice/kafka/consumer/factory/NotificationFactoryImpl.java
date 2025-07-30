@@ -1,7 +1,7 @@
-package com.greentechpay.notificationservice.kafka.listener.factory;
+package com.greentechpay.notificationservice.kafka.consumer.factory;
 
 import com.greentechpay.notificationservice.kafka.dto.PaymentNotificationMessageEvent;
-import com.greentechpay.notificationservice.kafka.listener.strategy.SendMessageStrategy;
+import com.greentechpay.notificationservice.kafka.consumer.strategy.SendMessageStrategy;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

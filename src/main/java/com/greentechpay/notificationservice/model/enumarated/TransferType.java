@@ -14,6 +14,7 @@ public enum TransferType {
     BalanceToCard("balanceToCard"),
     CardToBalance("cardToBalance"),
     BillingPayment("billingPayment"),
+    ESimGoService("billingPayment"),
     Qr("qr"),
     Nfc("nfc"),
     NONE("none");

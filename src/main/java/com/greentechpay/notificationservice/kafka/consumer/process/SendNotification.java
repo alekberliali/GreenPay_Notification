@@ -1,4 +1,4 @@
-package com.greentechpay.notificationservice.kafka.listener.process;
+package com.greentechpay.notificationservice.kafka.consumer.process;
 
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;

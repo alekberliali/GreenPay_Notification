@@ -1,4 +1,4 @@
-package com.greentechpay.notificationservice.kafka.listener.strategy;
+package com.greentechpay.notificationservice.kafka.consumer.strategy;
 
 import com.google.firebase.messaging.Message;
 import com.greentechpay.notificationservice.kafka.dto.PaymentNotificationMessageEvent;

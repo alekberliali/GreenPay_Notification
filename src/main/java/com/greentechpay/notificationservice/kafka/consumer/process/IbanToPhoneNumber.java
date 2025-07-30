@@ -1,11 +1,11 @@
-package com.greentechpay.notificationservice.kafka.listener.process;
+package com.greentechpay.notificationservice.kafka.consumer.process;
 
 import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
 import com.greentechpay.notificationservice.kafka.dto.PaymentNotificationMessageEvent;
-import com.greentechpay.notificationservice.kafka.listener.strategy.SenderNotificationStrategy;
-import com.greentechpay.notificationservice.kafka.listener.strategy.ReceiverNotificationStrategy;
-import com.greentechpay.notificationservice.kafka.listener.strategy.SendMessageStrategy;
+import com.greentechpay.notificationservice.kafka.consumer.strategy.SenderNotificationStrategy;
+import com.greentechpay.notificationservice.kafka.consumer.strategy.ReceiverNotificationStrategy;
+import com.greentechpay.notificationservice.kafka.consumer.strategy.SendMessageStrategy;
 import com.greentechpay.notificationservice.model.dto.Body;
 import com.greentechpay.notificationservice.model.enumarated.NotificationParty;
 import com.greentechpay.notificationservice.model.enumarated.NotificationProcessType;
